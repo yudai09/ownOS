@@ -1,0 +1,19 @@
+My os need following commands.
+qemu (emulator), sudo, gcc, mount, nasm (assembler)
+
+At first please create a directory for mounting image file.(sudo command is needed)
+$sudo mkdir /hdd
+Then let's start executing myOS.
+Fist, mount the image file to /hdd directory.
+$sh mount.sh (need sudo command)
+Next, make command create kernel.bin and move it to the /hdd directory We made at first step.
+$make
+At last,  run qemu (emulator).
+$sh run.sh
+
+
+
+
+
+
+
