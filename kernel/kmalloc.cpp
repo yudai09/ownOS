@@ -6,9 +6,6 @@ kmalloc_header_ptr base;
 kmalloc_header_ptr next_free;
 
 void init_kmalloc(){
-  //書き換える必要あり
-  //  u32_t not_aligned =(u32_t) malloc(1024*2);
-  //  u32_t aligned = (not_aligned + 0x1000 -1)&(-0x1000);//ページサイズでアライン
   u32_t *aligned = pFAllocator.allocChunk(0x20);
   base = next_free = (kmalloc_header *)aligned;
 
@@ -41,11 +38,13 @@ void *kmalloc(size_t size){
       p = p->next;
     }while(p.is_used());
   }while(p!=base);
+  panic("malloc error \n");
   return NULL;
 }
 
 
 void kfree(void *addr){
+  //  kprintf("kfree \n");
   kmalloc_header_ptr freed;
   kmalloc_header_ptr prev,next;
   bool is_next_used,is_prev_used;
@@ -97,6 +96,7 @@ void *operator new(size_t size)
  
 void *operator new[](size_t size)
 {
+  //  kprintf("new[] size %d \n",size);
   return kmalloc(size);
 }
  

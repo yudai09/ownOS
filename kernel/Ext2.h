@@ -18,7 +18,6 @@
 #include "kcom.h"
 #include "ata.h"
 
-bool set_ext2_root(Ata *ata);
 
 /*
  * Define EXT2_RESERVATION to reserve data blocks for expanding files
@@ -97,11 +96,6 @@ struct ext2_group_desc
  * Constants relative to the data blocks
  */
 
-#define	EXT2_NDIR_BLOCKS		12
-#define	EXT2_IND_BLOCK			EXT2_NDIR_BLOCKS
-#define	EXT2_DIND_BLOCK			(EXT2_IND_BLOCK + 1)
-#define	EXT2_TIND_BLOCK			(EXT2_DIND_BLOCK + 1)
-#define	EXT2_N_BLOCKS			(EXT2_TIND_BLOCK + 1)
 
 /*
  * Inode flags (GETFLAGS/SETFLAGS)
@@ -178,6 +172,27 @@ struct ext2_group_desc
  * Structure of an inode on the disk
  */
 struct ext2_inode {
+private:
+  enum {
+    FT_UNKNOWN,
+    FT_FIFO     = 0x01,
+    FT_CHRDEV   = 0x02,
+    FT_DIR      = 0x04,
+    FT_BLKDEV   = 0x06,
+    FT_REG_FILE = 0x08,
+    FT_SYMLINK  = 0x0a,
+    FT_SOCK     = 0x0c,
+    FT_MAX,
+  };
+public:
+  enum{
+    EXT2_NDIR_BLOCKS = 12,
+	EXT2_IND_BLOCK	 = EXT2_NDIR_BLOCKS,
+	EXT2_DIND_BLOCK	 = (EXT2_IND_BLOCK + 1),
+	EXT2_TIND_BLOCK	 = (EXT2_DIND_BLOCK + 1),
+	EXT2_N_BLOCKS	 = (EXT2_TIND_BLOCK + 1),
+  };
+
   u16_t	i_mode;		/* File mode */
   u16_t	i_uid;		/* Low 16 bits of Owner Uid */
   u32_t	i_size;		/* Size in bytes */
@@ -229,6 +244,19 @@ struct ext2_inode {
       u32_t	m_i_reserved2[2];
     } masix2;
   } osd2;				/* OS dependent 2 */
+  ext2_inode(){
+    i_mode = FT_UNKNOWN;
+  }
+  bool is_directory(){
+    if(i_mode >> 12 & FT_DIR)
+      return true;
+    return false;
+  }
+  bool is_valid(){
+    u8_t type = i_mode >> 12;
+    if(FT_UNKNOWN < type && type < FT_MAX)
+      return true;
+  }
 };
 
 #define i_size_high	i_dir_acl
@@ -542,17 +570,7 @@ public:
  * Ext2 directory file types.  Only the low 3 bits are used.  The
  * other bits are reserved for now.
  */
-enum {
-  EXT2_FT_UNKNOWN,
-  EXT2_FT_REG_FILE,
-  EXT2_FT_DIR,
-  EXT2_FT_CHRDEV,
-  EXT2_FT_BLKDEV,
-  EXT2_FT_FIFO,
-  EXT2_FT_SOCK,
-  EXT2_FT_SYMLINK,
-  EXT2_FT_MAX
-};
+
 
 /*
  * EXT2_DIR_PAD defines the directory entries boundaries
@@ -565,6 +583,11 @@ enum {
                                      ~EXT2_DIR_ROUND)
 #define EXT2_MAX_REC_LEN		((1<<16)-1)
 
+extern ext2_inode root_inode;
+bool read_file(ext2_inode node,u32_t pos);
+bool set_ext2_root(Ata *ata);
+
+ext2_inode get_inode_path(kvector<kstring> path,ext2_inode inode=root_inode);
 
 
 #endif

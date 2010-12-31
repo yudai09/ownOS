@@ -15,24 +15,25 @@ void child(u32_t pid_parent){
   kprintf("I'm child \n");
   message.m1.p1=111;
   sys_send(pid_parent,&message);
-  //IDEDriver *ide_driver;
-  //ide_driver = new IDEDriver(IRQ_PRIMARY,IRQ_SECONDARY);
-  //int controller, deviceNo;
-  // if (!ide_driver->findDevice(IDEDriver::DEVICE_ATA, -1, &controller, &deviceNo)){
-  //   kprintf("HD Not Found\n");
-  //   for(;;);
-  // }else{
-  //   kprintf("HD Found (Success)\n");
-  // }
+  
   Ata *atadev = new Ata("hdd");
-  u8_t buffer[100];
-
-  atadev->read(0,buffer,100);
-  for(int i=0;i<100;i++){
-    kprintf("%x",buffer[i]);
-  }
+  
   set_ext2_root(atadev);
-  //  ata.                          
+
+  kvector<kstring> path(1);
+  path[0] = "111";
+
+  ext2_inode node = get_inode_path(path);
+
+  if(node.is_valid()){
+    for(int i=0;i<15;i++)
+      kprintf("%x ",node.i_block[i]);
+    
+  }else{
+    kprintf("cannot find file \n");
+    read_file(node,0);
+  }
+  //is he alive?
   while(1){
     for(int i=0;i<10000000;i++);
     kprintf("c");

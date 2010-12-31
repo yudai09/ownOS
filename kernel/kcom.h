@@ -10,7 +10,7 @@
 #include"com.h"
 #include"KGlobal.h"
 #include"kerror.h"
-#include"String.hpp"
+#include"Utilclass.hpp"
 #include "kmalloc.h"
 
 

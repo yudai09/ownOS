@@ -14,7 +14,8 @@ void strcpy(char *d,const char *s);
 void strncpy(char *d,const char *s,size_t len);
 extern "C" {void *memcpy(void *s1,const void* s2,size_t n);}
 void *memcpy(void *s1,const void* s2,size_t n);
-unsigned short strcmp(char *s,char *s2,int num);
+unsigned short strcmp(const char *s,const char *s2,int num);
+unsigned short strncmp(const char *s,const char *s2,int num);
 extern "C" {void *memmove(void* to, const void* from, register size_t n);}
 void* memmove(void* to, const void* from, register size_t n);
 void strcpy(char *d,const char *s);

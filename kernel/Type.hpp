@@ -9,6 +9,7 @@
 #define TYPE_HPP_
 /*汎用的な宣言*/
 #include "kerror.h"
+
 #define NULL 0
 
 typedef unsigned int reg_t;

@@ -123,7 +123,7 @@ char  *num2str(int num,char *str){
 
   return str;
   }
-unsigned short strcmp(char *s1,char *s2,int num)
+unsigned short strcmp(const char *s1,const char *s2,int num)
 {
    if(strlen(s1)!=strlen(s2))
 	   return 1;
@@ -134,6 +134,14 @@ unsigned short strcmp(char *s1,char *s2,int num)
 			return 1;
 	}
 	return 0;
+}
+unsigned short strncmp(const char *s1,const char *s2,int num)
+{
+  for(int i=0;i<num;i++){
+    if(s1[i]!=s2[i])
+      return 1;
+  }
+  return 0;
 }
 
 typedef unsigned int size_t;

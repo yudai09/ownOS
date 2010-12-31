@@ -118,6 +118,7 @@ u32_t	Ata::read(u32_t pos,u8_t* buffer,u32_t sizee){
   ide_read_sectors(ata_drive,blocks,bl_begin,0,(u32_t)bl_buffer);
   memcpy((char*)buffer, (char *) ((int)bl_buffer + ((int)offset % (int)(512))), count);
   kfree(bl_buffer);
+
   return count;
 }
 
@@ -503,10 +504,10 @@ u8_t Ata::ide_ata_access(u8_t direction,u8_t drive,u32_t lba, u8_t numsects,u16_
 }
 
 void Ata::ide_wait_irq() {
-  asm("sti");
+  //  asm("sti");
   while (!ide_irq_invoked);
   ide_irq_invoked = 0;
-  asm("cli");
+  //asm("cli");
 }
 
 void Ata::ide_irq(){
