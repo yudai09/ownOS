@@ -21,17 +21,16 @@ void child(u32_t pid_parent){
   set_ext2_root(atadev);
 
   kvector<kstring> path(1);
-  path[0] = "111";
+  path[0] = "grep";
 
   ext2_inode node = get_inode_path(path);
 
   if(node.is_valid()){
-    for(int i=0;i<15;i++)
-      kprintf("%x ",node.i_block[i]);
-    
+    read_block(node,14*0x400);
   }else{
     kprintf("cannot find file \n");
-    read_file(node,0);
+    //    read_file(node,0x400*0x20,0x800);
+    
   }
   //is he alive?
   while(1){

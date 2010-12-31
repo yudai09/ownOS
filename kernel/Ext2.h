@@ -584,7 +584,7 @@ public:
 #define EXT2_MAX_REC_LEN		((1<<16)-1)
 
 extern ext2_inode root_inode;
-bool read_file(ext2_inode node,u32_t pos);
+bool read_block(ext2_inode node,u32_t pos);
 bool set_ext2_root(Ata *ata);
 
 ext2_inode get_inode_path(kvector<kstring> path,ext2_inode inode=root_inode);

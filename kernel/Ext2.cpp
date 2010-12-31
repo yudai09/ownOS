@@ -67,9 +67,65 @@ ext2_inode get_inode_path(kvector<kstring> path,ext2_inode inode){
   }
   return current_node;
 }
-bool read_file(ext2_inode node,u32_t pos){
-  
+/*
+  read inode
+
+  (b = block size)
+
+  num of block < 12                       ->  direct block (12)
+  num of block < 12+b/4               -> first indirect block
+  num of block < (b/4)^2+(b/4)+12         -> second inderect bloc
+  num of block < (b/4)^3+(b/4)^2+(b/4)+12 -> third inderect block
+*/
+void read_block(u32_t block_index,u8_t *buffer){
+  u32_t addr = block_index2addr(block_index);
+  atadriver->read(addr,buffer,block_size);
 }
+
+
+bool read_block(ext2_inode node,u32_t pos){
+  int accessblock = pos / block_size;
+  if(pos+block_size > node.i_size){
+    kprintf("exceed size limit %x, pos %x \n",node.i_size,pos);
+    return false;
+  }
+  /* te ki to */
+  int nr_entry = block_size / 4;
+  int maxnr_dir_block = 12;
+  int maxnr_Ind_block = 12+nr_entry;
+  int maxnr_Dind_block = maxnr_Ind_block+(nr_entry)*(nr_entry);
+  int maxnr_Tind_block = maxnr_Dind_block+(nr_entry)*(nr_entry)*(nr_entry);
+  
+  u8_t *buffer = new u8_t[block_size];
+
+  if(accessblock < maxnr_dir_block){
+    read_block(node.i_block[accessblock],buffer);
+    kprintf("Dir %x \n",buffer[0],block_size);
+  }else if(accessblock < maxnr_Ind_block){
+    read_block(node.i_block[ext2_inode::EXT2_IND_BLOCK],buffer);
+    int block_index = ((u32_t *)buffer)[accessblock-maxnr_dir_block];
+    read_block(block_index,buffer);
+  }else if(accessblock < maxnr_Dind_block){
+    read_block(node.i_block[ext2_inode::EXT2_DIND_BLOCK],buffer);
+    int first_index = ((u32_t *)buffer)[(accessblock-maxnr_Ind_block)/nr_entry];
+    read_block(first_index,buffer);
+    int second_index = ((u32_t *)buffer)[(accessblock-maxnr_Ind_block)%nr_entry];
+    read_block(second_index,buffer);
+  }else if(accessblock < maxnr_Tind_block){
+    read_block(node.i_block[ext2_inode::EXT2_TIND_BLOCK],buffer);
+    int first_index = ((u32_t *)buffer)[(accessblock-maxnr_Dind_block)/(nr_entry*nr_entry)];
+    read_block(first_index,buffer);
+    int second_index = ((u32_t *)buffer)[((accessblock-maxnr_Dind_block)/nr_entry)%(nr_entry)];
+    read_block(second_index,buffer);
+    int third_index = ((u32_t *)buffer)[(accessblock-maxnr_Dind_block)%(nr_entry)];
+    read_block(third_index,buffer);
+  }
+  kprintf("read buffer \n");
+  for(int i=0;i<0xf;i+=2)
+    kprintf("%x%x ",buffer[i],buffer[i+1]);
+  kprintf("\n");
+}
+
 bool set_ext2_root(Ata *ata){
   atadriver = ata;
 
