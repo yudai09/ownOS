@@ -1,0 +1,14 @@
+#include"kcom.h"
+#include "elf.h"
+#include "ata.h" //finally erase this line
+#include "Ext2.h"
+
+//read 32bit x86 executables only.
+//test program for block device driver
+void load_elf_executable(Ext2 &fs){
+  u8_t *buffer = new u8_t[fs.blocksize()];
+  fs.read_cn_block(0);
+  Elf32_Ehdr *header = (Elf32_Ehdr *)buffer;//
+  
+  
+}

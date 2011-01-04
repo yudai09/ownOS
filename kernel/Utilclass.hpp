@@ -3,6 +3,17 @@
 
 #include"kcom.h"
 
+// template <class T>
+// class sized_buffer{
+//   size_t size;
+//   T *buffer;
+// private:
+// public:
+//   sized_buffer(size_t size){
+//     this->size = size;
+//     buffer = new T[size];
+//   }
+// };
 class kstring{
 private:
   char *pstring;

@@ -1,21 +1,10 @@
 #include "Ext2.h"
 
-static u32_t block_size;
-static u32_t inode_size;
-static ext2_super_block *super_block;
-/*These values are not accurate, but ok */
-static u32_t super_block_offset = 0x400;
-static u32_t group_desc_offset = 0x800;
-Ata *atadriver;
-/*fist block address is now 0x7e00 (this is not accurate..)*/
-static u32_t first_blockaddr = 0x7e00;
-ext2_inode root_inode;
-
-u32_t block_index2addr(u32_t index){
+u32_t Ext2::block_index2addr(u32_t index){
   return first_blockaddr + index*block_size;
 }
 
-ext2_inode get_inode(u32_t inode_index){
+Ext2::ext2_inode Ext2::get_inode(u32_t inode_index){
   u32_t block_group_of_inode = (inode_index -1) / super_block->inodes_per_group();
   u32_t index_in_bgroup = (inode_index -1) % super_block->inodes_per_group();
   //read block group descriptor
@@ -28,7 +17,7 @@ ext2_inode get_inode(u32_t inode_index){
                   (u8_t *)inode,sizeof(ext2_inode));
   return *inode;  
 }
-ext2_inode find_inode_from_direntries(u8_t *buffer,kstring &search_for){
+Ext2::ext2_inode Ext2::find_inode_from_direntries(u8_t *buffer,kstring &search_for){
   ext2_inode invalid_inode;
   ext2_dir_entry_2 *file=(ext2_dir_entry_2 *)buffer;
     do{
@@ -42,30 +31,28 @@ ext2_inode find_inode_from_direntries(u8_t *buffer,kstring &search_for){
     }while((u32_t) file < (u32_t)buffer + 0x400);  
     return invalid_inode;
 }
-ext2_inode get_inode_path(kvector<kstring> path,ext2_inode inode){
-//default inode = root inode
-  ext2_inode current_node = inode;
-  ext2_inode invalid_inode;
-
+bool Ext2::set_current_path(kvector<kstring> path){
+  //default inode = root inode
+  
   for(int i=0;i<path.length();i++){
     kprintf("%s:",path[i].to_char());
   }
   kprintf("\n");
 
   for(int i=0;i<path.length();i++){
-    if(!current_node.is_directory())
-      return invalid_inode;
-    u32_t addr_of_dir_info = block_index2addr(current_node.i_block[0]);
+    if(!current_inode.is_directory())
+      return false;
+    u32_t addr_of_dir_info = block_index2addr(current_inode.i_block[0]);
     kprintf("addr_of_dir_info %x \n",addr_of_dir_info);
     u8_t *buffer = (u8_t *)kmalloc(0x400);
     atadriver->read(addr_of_dir_info,buffer,0x400);
-    current_node = find_inode_from_direntries(buffer,path[i]);
-    if(!current_node.is_valid()){
-      kprintf("invalid node %x \n",current_node.i_mode);
-      return invalid_inode;
+    current_inode = find_inode_from_direntries(buffer,path[i]);
+    if(!current_inode.is_valid()){
+      kprintf("invalid node %x \n",current_inode.i_mode);
+      return false;
     }
   }
-  return current_node;
+  return true;
 }
 /*
   read inode
@@ -77,14 +64,16 @@ ext2_inode get_inode_path(kvector<kstring> path,ext2_inode inode){
   num of block < (b/4)^2+(b/4)+12         -> second inderect bloc
   num of block < (b/4)^3+(b/4)^2+(b/4)+12 -> third inderect block
 */
-void read_block(u32_t block_index,u8_t *buffer){
+void Ext2::read_block(u32_t block_index,u8_t *buffer){
   u32_t addr = block_index2addr(block_index);
   atadriver->read(addr,buffer,block_size);
 }
 
 
-bool read_block(ext2_inode node,u32_t pos){
+bool Ext2::read_cn_block(u32_t pos,void *dbuffer){
+  u8_t *buffer = (u8_t *)dbuffer;
   int accessblock = pos / block_size;
+  const ext2_inode node  = current_inode;
   if(pos+block_size > node.i_size){
     kprintf("exceed size limit %x, pos %x \n",node.i_size,pos);
     return false;
@@ -96,7 +85,7 @@ bool read_block(ext2_inode node,u32_t pos){
   int maxnr_Dind_block = maxnr_Ind_block+(nr_entry)*(nr_entry);
   int maxnr_Tind_block = maxnr_Dind_block+(nr_entry)*(nr_entry)*(nr_entry);
   
-  u8_t *buffer = new u8_t[block_size];
+  //  u8_t *buffer = new u8_t[block_size];
 
   if(accessblock < maxnr_dir_block){
     read_block(node.i_block[accessblock],buffer);
@@ -124,9 +113,10 @@ bool read_block(ext2_inode node,u32_t pos){
   for(int i=0;i<0xf;i+=2)
     kprintf("%x%x ",buffer[i],buffer[i+1]);
   kprintf("\n");
+  return true;
 }
 
-bool set_ext2_root(Ata *ata){
+Ext2::Ext2(Ata *ata){
   atadriver = ata;
 
   super_block=new ext2_super_block();
@@ -142,11 +132,10 @@ bool set_ext2_root(Ata *ata){
   kprintf("bg_inode_table %x \n",group_desc0->bg_inode_table);
 
   root_inode = get_inode(2);
+  current_inode = root_inode;
   if(root_inode.is_directory()){
     kprintf("root inode size %x type %x \n",root_inode.i_size,root_inode.i_mode);
-    
   }
-  return true;
 }
 
 

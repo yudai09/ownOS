@@ -4,6 +4,7 @@
 #include"syscall.h"
 #include"ata.h"
 #include"Ext2.h"
+#include"elf_loader.h"
 //#include"IDEDriver.h"
 //Never sleep
 extern "C" {void taskInit();}
@@ -17,20 +18,18 @@ void child(u32_t pid_parent){
   sys_send(pid_parent,&message);
   
   Ata *atadev = new Ata("hdd");
-  
-  set_ext2_root(atadev);
+  Ext2 ext2_fs(atadev);
 
   kvector<kstring> path(1);
   path[0] = "grep";
 
-  ext2_inode node = get_inode_path(path);
-
-  if(node.is_valid()){
-    read_block(node,14*0x400);
+  if(!ext2_fs.set_current_path(path)){
+    kprintf("cannot find file");
   }else{
-    kprintf("cannot find file \n");
-    //    read_file(node,0x400*0x20,0x800);
-    
+    u8_t *buffer = new u8_t[ext2_fs.blocksize()];
+    ext2_fs.read_cn_block(14*0x400,buffer);
+    load_elf_executable(path,ext2_fs);
+
   }
   //is he alive?
   while(1){

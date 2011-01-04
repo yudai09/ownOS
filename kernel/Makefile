@@ -20,7 +20,7 @@ OBJS=loader.o kinit.o tk_printf.o mbi_read.o PFAllocator.o KGlobal.o kerror.o st
 	syscall.o kmalloc.o \
 	ata.o	\
 	Device.o \
-	Ext2.o
+	Ext2.o elf_loader.o
 #	IDEDriver.o
 
 kernel.bin:$(OBJS)
