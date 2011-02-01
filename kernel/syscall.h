@@ -4,7 +4,7 @@
 enum syscall{
   NR_WAIT_INTERRUPT
 };
-
+int sys_exec(char *file_path);
 int sys_fork();
 int sys_recv(pid_t from,Message *message);
 int sys_send(pid_t to,Message *message);

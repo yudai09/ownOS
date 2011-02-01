@@ -127,7 +127,7 @@ void tk_printf (const char *format, ...)
 	    case 's':
 	      p = *arg++;
 	      if (! p)
-		p = "(null)";
+            p = (char *)"(null)";
 
 	    string:
 	      while (*p)

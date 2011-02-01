@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "asmfunc.h"
 #include "Descriptor.h"
+#include "KGlobal.h"
 
 static bool sched_req=false;
 
@@ -39,6 +40,12 @@ void init_tasks()
 spの値をコンテキスト情報の先頭に設定し、ret2user(@isr.nas)
 を呼ぶことで可能になる
 */
+
+void after_exec(u32_t ret_addr){
+  Proc *current = pManager.pCurrent;
+  stack_frame_s *frame_curr =(stack_frame_s *)((u32_t)current->kernel_info.stack_top-sizeof(stack_frame_s));
+  frame_curr->pc = (reg_t)ret_addr;
+}
 void ret_to_user(void){
   Proc *current = pManager.pCurrent;
   stack_frame_s *frame_curr =(stack_frame_s *)((u32_t)current->kernel_info.stack_top-sizeof(stack_frame_s));

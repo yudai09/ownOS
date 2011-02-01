@@ -4,34 +4,50 @@
 #include"syscall.h"
 #include"ata.h"
 #include"Ext2.h"
-#include"elf_loader.h"
+//#include"elf_loader.h"
+#include "exec.h"
+#include"FileSystem.h"
+#include"KGlobal.h"
+
 //#include"IDEDriver.h"
 //Never sleep
 extern "C" {void taskInit();}
 #define IRQ_PRIMARY   14
 #define IRQ_SECONDARY 15
 int sys_fork();
+int sys_esec();
 void child(u32_t pid_parent){
   Message message;
   kprintf("I'm child \n");
   message.m1.p1=111;
   sys_send(pid_parent,&message);
-  
-  Ata *atadev = new Ata("hdd");
-  Ext2 ext2_fs(atadev);
 
+  Ata *atadev = new Ata((char *)"hdd");
+  //  Ext2 ext2_fs(atadev);
+  Ext2 *root_fs = new Ext2(atadev);
   kvector<kstring> path(1);
-  path[0] = "grep";
+  path[0] = "executable";
 
-  if(!ext2_fs.set_current_path(path)){
-    kprintf("cannot find file");
+  // if(!root_fs->set_current_path(path)){
+  //   kprintf("cannot find file");
+  // }else{
+  //   u8_t *buffer = new u8_t[root_fs->blocksize()];
+  //   root_fs->read_cn_block(14*0x400,buffer);
+  //   load_elf_executable(path,*root_fs);
+  // }
+  
+  //  FileSystem fs(root_fs);
+  fs = new FileSystem(root_fs);
+  kprintf("addr %x \n",&fs);
+  File *file=fs->fopen(kstring((char *)"/executable.elf"));
+  if(file->is_valid){
+    sys_exec((char *)"/executable.elf");
   }else{
-    u8_t *buffer = new u8_t[ext2_fs.blocksize()];
-    ext2_fs.read_cn_block(14*0x400,buffer);
-    load_elf_executable(path,ext2_fs);
-
+    kprintf("cannot open file \n");
   }
+
   //is he alive?
+  kprintf("roop \n");
   while(1){
     for(int i=0;i<10000000;i++);
     kprintf("c");

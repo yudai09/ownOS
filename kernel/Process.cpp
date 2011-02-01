@@ -1,4 +1,5 @@
 #include"kcom.h"
+#include"KGlobal.h"
 #include"Process.h"
 /*#include"Timer.h"
 #include"asmfunc.h"

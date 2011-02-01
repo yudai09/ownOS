@@ -4,6 +4,7 @@
 #include "task.h"
 #include "syscall.h"
 #include "taskSys.h"
+#include "KGlobal.h"
 
 extern "C" {void taskSys();}
 

@@ -1,7 +1,7 @@
 #ifndef DEVICE_H
 #define DEVICE_H
 
-#include"kcom.h"
+#include"com.h"
 
 class Device
 {

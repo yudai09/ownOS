@@ -9,6 +9,7 @@
 #include"irq.h"
 #include"kernel_call.h"
 #include"Ipc.h"
+#include"exec.h"
 
 void invalid(void *args){
   kprintf("invalid handler");
@@ -83,6 +84,16 @@ void kernelCall(void *args){
   kprintf("kernelcall %x %x %x \n",uargs[0],uargs[1],uargs[2]);
 
   switch(uargs[0]){
+  case NR_K_EXEC :
+    {
+      char *filepath=(char *)uargs[1];
+      kprintf(filepath);
+      kprintf("\n");
+      File *file=fs->fopen(kstring(filepath));
+      exec(file);
+      // exec()
+      break;
+    }
   case NR_K_SEND :
     {
       Message &mess=*(Message *)uargs[2];

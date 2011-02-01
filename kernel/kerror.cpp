@@ -6,6 +6,7 @@
  *      カーネル内で起こるエラーを処理する関数群
  */
 #include"kcom.h"
+#include"KGlobal.h"
 #include"kerror.h"
 void panic(const char *str){
   kprintf("PANIC: %s \n",str);

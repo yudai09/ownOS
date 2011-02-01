@@ -20,12 +20,13 @@ private:
   int len;
   void copy(const kstring &copied){
     len = copied.length();
-    pstring = new char[len+1];
+    pstring = new char[len+1+1];
     strncpy(pstring,copied.to_char(),len);
   }
 public:
   kstring(){
     len = 0;
+    pstring=NULL;
   }
   kstring(const char *str){
     len =   strlen(str);
@@ -87,19 +88,63 @@ template <class TYPE>
 class kvector{
 private:
   TYPE *elems;
-  size_t max_elem;
+  size_t max_elem;//最大容量
+  size_t num_elem;//実際の要素数
+  bool copy(const kvector<TYPE> &copied){
+    //    kprintf("copy()\n");
+    this->max_elem = copied.max_elem;
+    this->num_elem = copied.num_elem;
+    elems = new TYPE[max_elem];
+    for(int i=0;i<max_elem;i++){
+      elems[i]=copied[i];
+    }
+    return true;
+  }
 public:
+  kvector(){
+    elems=NULL;
+    max_elem=0;
+    num_elem=0;
+  }
   kvector(size_t max_elem){
+    //    kprintf("constractor()\n");
     this->max_elem = max_elem;
+    this->num_elem = max_elem;
     elems = new TYPE[max_elem];
   }
-  int length(){
-    return max_elem;
+  kvector(const kvector<TYPE> &copied){
+    //    kprintf("copy constractor()\n");
+    copy(copied);
   }
-  TYPE &operator [](size_t num_elem){
+  ~kvector(){
+    //    kprintf("destractor()\n");
+    if(elems!=NULL)
+      delete[] elems;
+    //    kprintf("destractor() end\n");
+  }
+  int length(){
+    return num_elem;
+    //    return max_elem;
+  }
+  TYPE &operator [](size_t num_elem)const{
     if(num_elem >= max_elem)
       return *(TYPE *)NULL;
     return elems[num_elem];
+  }
+  bool set_nr_elem(size_t nr_elem){
+    if(nr_elem < max_elem){
+      num_elem = nr_elem;
+      return true;
+    }else{
+      return false;
+    }
+  }
+  kvector<TYPE>& operator=(const kvector<TYPE> &copied){
+    if(elems!=NULL){
+      delete[] elems;
+    }
+    copy(copied);
+    return *this;
   }
 };
 

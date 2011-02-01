@@ -2,7 +2,7 @@
 #include"Ipc.h"
 #include"Process.h"
 #include"task.h"
-
+#include "KGlobal.h"
 /*
 超非効率なメッセージパッシング
 enque->deque->copyの三回のコピーが全体で発生する

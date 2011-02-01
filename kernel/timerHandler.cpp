@@ -1,9 +1,10 @@
 #include"kcom.h"
 #include "Timer.h"
 #include "task.h"
+#include "KGlobal.h"
 void timerHandler(void *args){
   timer.msecond+=Timer::interval;
-  if(timer.msecond>1000){//秒数を数える
+  if(timer.msecond>1000){//遘呈焚繧呈焚縺医ｋ
     timer.second++;
     timer.msecond=0;
   }
@@ -16,7 +17,7 @@ void timerHandler(void *args){
     }
     switch(p->type){
     case Timer::WatchDog:
-      //まだ
+      //縺ｾ縺�
       break;
     case Timer::TaskSwitch:
       timer.quantum_exceeded=true;

@@ -22,4 +22,5 @@ void wakeup(int pid);
 void wakeup();
 void wait_interrupt(int irq);
 void notify(int irq);
+void after_exec(u32_t ret_addr);
 #endif

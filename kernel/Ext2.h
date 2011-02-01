@@ -15,8 +15,9 @@
 #ifndef EXT2_H
 #define EXT2_H
 
-#include "kcom.h"
 #include "ata.h"
+#include "kcom.h"
+
 
 
 class Ext2{
@@ -66,6 +67,8 @@ private:
 /*
  * Structure of an inode on the disk
  */
+ public:
+
   struct ext2_inode {
   private:
     enum {
@@ -154,6 +157,7 @@ private:
       return false;
     }
   };
+ private:
   class ext2_super_block {
   private:
     u32_t	s_inodes_count;		/* Inodes count */
@@ -294,24 +298,34 @@ private:
   ext2_inode root_inode;
   ext2_inode current_inode;
 
-  u32_t block_size;
+  
+  
   u32_t inode_size;
 
   u32_t block_index2addr(u32_t index);
   ext2_inode get_inode(u32_t inode_index);
   ext2_inode find_inode_from_direntries(u8_t *buffer,kstring &search_for);
+  
 
  public:
+  u32_t block_size;
+  ext2_inode invalid_inode;//Ìµ¸ú¤Êinode
   inline u32_t blocksize(){
     return block_size;
   }
-  bool set_current_path(kvector<kstring> path);
+  //  bool set_current_path(kvector<kstring> path);
+  ext2_inode get_inode_path(kvector<kstring> path);
   void read_block(u32_t block_index,u8_t *buffer);
-  bool read_cn_block(u32_t pos,void *buffer);
-
+  //  bool read_cn_block(u32_t pos,void *buffer);
+  bool read_block_pos(u32_t pos,void *dbuffer,ext2_inode inode);
   //bool set_ext2_root(Ata *ata);
   Ext2(Ata *ata);
 };
+
+
+
+
+
 
   /*
    * Macro-instructions used to manage group descriptors

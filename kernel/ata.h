@@ -18,7 +18,7 @@
 #ifndef __ATA__
 #define __ATA__
 
-#include "kcom.h"
+#include "com.h"
 #include "Device.h"
 #include "ioctl.h"
 

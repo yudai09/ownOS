@@ -1,11 +1,13 @@
 #include "kcom.h"
 #include "kmalloc.h"
-
+#include "asmfunc.h"
+#include "KGlobal.h"
 //centinels
 kmalloc_header_ptr base;
 kmalloc_header_ptr next_free;
 
 void init_kmalloc(){
+  
   u32_t *aligned = pFAllocator.allocChunk(0x20);
   base = next_free = (kmalloc_header *)aligned;
 
@@ -15,10 +17,13 @@ void init_kmalloc(){
 }
 
 void *kmalloc(size_t size){
+  cli_asm();
   kmalloc_header_ptr p = next_free;
   //アライン
   u32_t rsize = (size+sizeof(kmalloc_header)+KMALLOC_ALIGN -1)&(-KMALLOC_ALIGN);
-
+  if(size<0){
+    panic("kmalloc::invalid size specified \n");
+  }
   do{
     if(rsize <= p->size){
       next_free = p;
@@ -39,11 +44,13 @@ void *kmalloc(size_t size){
     }while(p.is_used());
   }while(p!=base);
   panic("malloc error \n");
+  sti_asm();
   return NULL;
 }
 
 
 void kfree(void *addr){
+  cli_asm();
   //  kprintf("kfree \n");
   kmalloc_header_ptr freed;
   kmalloc_header_ptr prev,next;
@@ -87,6 +94,7 @@ void kfree(void *addr){
     freed.set_used(false);
     prev->next = freed;
   }
+  sti_asm();
 }
 
 void *operator new(size_t size)

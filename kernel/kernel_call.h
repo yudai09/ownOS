@@ -5,6 +5,7 @@
 //for include kernel_call_asm(...);
 
 enum kernelcall{
+  NR_K_EXEC,
   NR_K_SEND,
   NR_K_RECV,
   NR_K_FORK,

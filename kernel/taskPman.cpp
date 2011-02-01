@@ -1,7 +1,7 @@
 #include "kcom.h"
 #include "syscall.h"
 #include "task.h"
-
+#include "KGlobal.h"
 extern "C" {void taskPman();}
 
 void taskPman(){

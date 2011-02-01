@@ -7,6 +7,7 @@
 
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
+#include"kcom.h"
 #include"PFAllocator.h"
 #include"Descriptor.h"
 #include"Tss.h"
@@ -14,6 +15,7 @@
 #include"Timer.h"
 #include"Process.h"
 #include"com.h"
+#include"FileSystem.h"
 
 enum ZONE{
   BEGIN_STRAIGHT_MEM=0,
@@ -36,6 +38,8 @@ extern VarMem varMem;
 extern Timer timer;
 extern PManager pManager;
 extern u32_t *next_sf;
+extern FileSystem  *fs;
+
 extern void (*isr[0x100])();
 extern void (*intr_func[0x100])(void *);
 extern void (*kprintf )(const char *format, ...);

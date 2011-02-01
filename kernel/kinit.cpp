@@ -1,6 +1,7 @@
 #include"kcom.h"
 #include"tk_printf.h"
 #include"asmfunc.h"
+#include"KGlobal.h"
 extern "C" {void kinit( void* mbd, unsigned int magic );}
 void mbi_read(void *addr,unsigned int magic);
 

@@ -8,9 +8,9 @@
 #ifndef KCOM_H_
 #define KCOM_H_
 #include"com.h"
-#include"KGlobal.h"
-#include"kerror.h"
 #include"Utilclass.hpp"
+//#include"KGlobal.h"
+#include"kerror.h"
 #include "kmalloc.h"
 
 

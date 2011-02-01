@@ -10,6 +10,7 @@
 #define ALIGN_4K(x) ((x&~(0xfff)))
 #define MOD_4K(x) (x&0xfff)
 #define CONCAT(x,y) x##y
+#define CEIL(x,y) (x+y-1)&~(y-1)
 #define TRUE	1
 #define FALSE	0
 #define NULL 0

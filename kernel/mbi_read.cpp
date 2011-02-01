@@ -19,7 +19,7 @@
 #include "tk_printf.h"
 #include "kcom.h"
 #include "elf.h"
-
+#include "KGlobal.h"
 /* Macros. */
 
 /* Check if the bit BIT in FLAGS is set. */

@@ -11,6 +11,7 @@
 
 #include"irq.h"
 #include"isr.h"
+
 //#include"Irq"
 
 #define IGNORE ignore
@@ -27,7 +28,7 @@ VarMem varMem;
 Timer timer;
 PManager pManager;
 u32_t *next_sf;
-
+FileSystem *fs;
 //出力方法がブート時とそれ以外でことなるので各時点で下のポインターを変更する
 void (*kprintf )(const char *format, ...);
 void (*isr[0x100])()={

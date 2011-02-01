@@ -18,7 +18,8 @@
 //#include <myos.h>
 #include "ata.h"
 #include "asmfunc.h"
-
+#include "kcom.h"
+#include "KGlobal.h"
 //#include <api/ioctl.h>
 
 /**
