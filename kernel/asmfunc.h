@@ -19,6 +19,8 @@ int kernel_call_asm(u32_t nr,u32_t arg1=0,u32_t arg2=0,u32_t arg3=0);//とくに
 void cli_asm(void);
 void sti_asm(void);
 u32_t get_esp(void);
+u32_t io_load_eflags();
+void io_store_eflags(u32_t eflags);
 /*ESPの値をprev->kernel_info->espに代入し
   同時にcurrent->kernel_info->espをESPに代入する*/
 #define swap_esp(esp_prev,esp_next) \

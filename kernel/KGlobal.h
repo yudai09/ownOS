@@ -16,6 +16,8 @@
 #include"Process.h"
 #include"com.h"
 #include"FileSystem.h"
+#include"vga.h"
+
 
 enum ZONE{
   BEGIN_STRAIGHT_MEM=0,
@@ -39,6 +41,7 @@ extern Timer timer;
 extern PManager pManager;
 extern u32_t *next_sf;
 extern FileSystem  *fs;
+extern Vram::VramInfo *vram_info;
 
 extern void (*isr[0x100])();
 extern void (*intr_func[0x100])(void *);

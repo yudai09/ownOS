@@ -27,7 +27,7 @@ u8_t io_in8_asm(int port){
 	       "in  %dx,%al \n\t"
 	       "pop %edx \n\t"
   );
-  //EAX$B$,JV$jCM(B
+  //EAXが返り値
 }
 u16_t io_in16_asm(int port){
   asm volatile(
@@ -152,6 +152,32 @@ void get_esp(void){
 	       "mov %esp,%eax"
 	       );
 }
+
+u32_t io_load_eflags(){
+  asm volatile(
+               "pushf \n\t"
+               "pop %eax \n\t"
+               );
+}
+void io_store_eflags(u32_t eflags){
+  asm volatile(
+               "mov 8(%ebp),%eax\n\t"
+               "push %eax \n\t"
+               "popf \n\t"
+               );
+}
+// _io_load_eflags:        ; int io_load_eflags(void);
+//                 PUSHFD          ; PUSH EFLAGS <82>Ƃ<A2><82><A4><88>Ӗ<A1>
+//                 POP             EAX
+//                 RET
+
+// _io_store_eflags:       ; void io_store_eflags(int eflags);
+//                 MOV             EAX,[ESP+4]
+//                 PUSH    EAX
+//                 POPFD           ; POP EFLAGS <82>Ƃ<A2><82><A4><88>Ӗ<A1>
+//                 RET
+
+
 
 
 //#define swap_esp(ADDR_KERNEL_INFO_TSS_ESP)                \

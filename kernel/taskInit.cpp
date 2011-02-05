@@ -8,6 +8,8 @@
 #include "exec.h"
 #include"FileSystem.h"
 #include"KGlobal.h"
+#include"vga.h"
+
 
 //#include"IDEDriver.h"
 //Never sleep
@@ -41,16 +43,16 @@ void child(u32_t pid_parent){
   kprintf("addr %x \n",&fs);
   File *file=fs->fopen(kstring((char *)"/executable.elf"));
   if(file->is_valid){
-    sys_exec((char *)"/executable.elf");
+    //sys_exec((char *)"/executable.elf");
   }else{
     kprintf("cannot open file \n");
   }
-
   //is he alive?
+  Vram::init_vga();
   kprintf("roop \n");
   while(1){
-    for(int i=0;i<10000000;i++);
-    kprintf("c");
+    // for(int i=0;i<10000000;i++);
+    // kprintf("c");
   }
 }
 class Test{
@@ -66,8 +68,8 @@ void parent(u32_t pid_child){
   sys_recv(pid_child,&message);
   kprintf("Message content = %d \n",message.m1.p1);
   while(1){
-    for(int i=0;i<10000000;i++);
-    kprintf("p");
+    // for(int i=0;i<10000000;i++);
+    // kprintf("p");
   }
 }
 

@@ -138,6 +138,7 @@ Proc *PManager::makeSysProc()
   u32_t *stack_begin,*stack_end;
   stack_begin = (u32_t *)(0x40000000-0x1000);
   stack_end   = (u32_t *)0x40000000;
+  
   pro->mm->add_region(stack_begin,((u32_t)stack_end-(u32_t)stack_begin),
 		      mm_region::READABLE | mm_region::WRITABLE | mm_region::SYSTEM);
 

@@ -34,7 +34,7 @@ void VarMem::initPaging(void){
   kPdir=(entry_t *)pFAllocator.allocChunk(1);//4kb
 
   kPtables=(entry_t **)pFAllocator.allocChunk(1);//4kb
-  //メモリの最大アドレスまでマッピング（切り捨てあり）
+  //物理メモリの最大アドレスまでマッピング（切り捨てあり）
   u32_t nr_valid_pages = bootinfo.mem_size/dir_entrySize;
   entry_t *big_frame = pFAllocator.allocChunk(nr_valid_pages);
   kprintf("nr_valid_pages %x \n",nr_valid_pages);
@@ -42,6 +42,7 @@ void VarMem::initPaging(void){
     kPtables[i]=(entry_t *)((u32_t)big_frame+PFAllocator::ChunkSize*i);
   }
   //  kPtables[0]=(entry_t *)pFAllocator.allocChunk(1);//4kb
+  
   disableAllEntry(kPdir);
 
   for(int i=0;i<nr_valid_pages;i++){
@@ -52,6 +53,8 @@ void VarMem::initPaging(void){
     }
   }
 
+  //vramのため
+  varMem.mapping_pmem(0xe0000000,0xe0000000,0x200000,kPdir,VarMem::systempage);
   //ディレクトリの最後にページングのテーブルを設定するための特別なテーブルを設定
   editEntry(kPdir+0x3ff,(u32_t)v2ptable,systempage);
   paging_on_asm((u32_t)kPdir);
@@ -59,8 +62,17 @@ void VarMem::initPaging(void){
 void VarMem::copyKernelDir(entry_t *pdir){
   disableAllEntry(pdir);
   u32_t nr_valid_pages = bootinfo.mem_size/dir_entrySize;
-  //ストレートマップ領域のみコピー
+  //ストレートマップ領域コピー
   for(int i=0;i<nr_valid_pages;i++){
+    pdir[i]=kPdir[i];
+  }
+  //VRAM領域コピー
+  int i_begin=0xe0000000/dir_entrySize;
+  //  int i_end  = CEIL(0xe0200000,dir_entrySize)/dir_entrySize;
+  int i_end  = 0xe0200000/dir_entrySize;
+  kprintf("%x \n",i_begin);
+  for(int i=i_begin;i<=i_end;i++){
+
     pdir[i]=kPdir[i];
   }
 }
@@ -168,7 +180,40 @@ u32_t *VarMem::vir2phy(u32_t *virAddr,entry_t *pdir){
   return (u32_t*)retaddr;
 }
 
+//物理メモリを仮想メモリにマッピング
+//VRAMをマッピングするために作成
+void VarMem::mapping_pmem(u32_t phyAddr,u32_t virAddr,size_t size,entry_t *pdir,u16_t type){
+  //  cli_asm();
+  entry_t *entryD;
+  entry_t *table;
+  entry_t *entryT;
+  //pdir may be virtual address
+  entry_t aligned_size = CEIL(size,0x1000);
+  //  kprintf("enablespace: varaddr %x->%x \n",(u32_t)virAddr,(u32_t)virAddr+aligned_size);
+  flashCache_asm();//flash cache memory 
+  for(int i=0;i<aligned_size/0x1000;i++){
+    u32_t where=(u32_t)virAddr+i*0x1000;
+    //    entryD=mapP2V_4k(&pdir[where/0x400000],0);//mapping temporary
+    entryD=&pdir[where/0x400000];//mapping temporary
+    //    kprintf("entryD %x \n",entryD);
+    if(!isEntryExist(*entryD)){//entry exist?
+      table=(entry_t *)pFAllocator.allocChunk(1);//table
+      editEntry(entryD,(u32_t)table,type);
+      disableAllEntry(table);
+    }else{
+      table=caddrEntry(*entryD);//obtain address from entry
+    }
+    //entryT=mapP2V_4k(&table[(where%0x400000)/0x1000],2);
+    entryT=&table[(where%0x400000)/0x1000];
+    if(!isEntryExist(*entryT)){
+      //u32_t *s4k=(u32_t *)pFAllocator.allocChunk(1);//4k
+      u32_t *s4k = (u32_t *)phyAddr+i*0x400;
+      editEntry(entryT,(u32_t)s4k,type);
+    }
+  }
 
-
+  flashCache_asm();
+  //  sti_asm();
+}
 
 

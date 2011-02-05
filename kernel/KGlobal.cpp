@@ -29,6 +29,7 @@ Timer timer;
 PManager pManager;
 u32_t *next_sf;
 FileSystem *fs;
+Vram::VramInfo *vram_info;
 //出力方法がブート時とそれ以外でことなるので各時点で下のポインターを変更する
 void (*kprintf )(const char *format, ...);
 void (*isr[0x100])()={

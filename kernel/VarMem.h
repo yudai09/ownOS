@@ -49,6 +49,7 @@ class VarMem {
   void enableSpace(u32_t *virAddr,u32_t size,entry_t *pdir,const u16_t type);
   void disableAllEntry(entry_t *table);
   u32_t *vir2phy(u32_t *virAddr,entry_t *pdir=NULL);
+  void mapping_pmem(u32_t phyaddr,u32_t viraddr,size_t size,entry_t *pdir,u16_t type);
   VarMem();
 };
 

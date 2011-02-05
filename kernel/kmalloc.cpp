@@ -35,6 +35,8 @@ void *kmalloc(size_t size){
       next_free->size -= rsize;
       //size==0になったら?
       //未定
+      sti_asm();
+      //io_store_eflags(eflags);	/* 割り込み許可フラグを元に戻す */
       return (u32_t *)((u32_t)p+sizeof(kmalloc_header));
     }
     //以下のwhileは無限ループにならない.
@@ -43,8 +45,9 @@ void *kmalloc(size_t size){
       p = p->next;
     }while(p.is_used());
   }while(p!=base);
-  panic("malloc error \n");
   sti_asm();
+  panic("malloc error \n");
+
   return NULL;
 }
 
