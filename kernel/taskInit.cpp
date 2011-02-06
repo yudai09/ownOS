@@ -8,6 +8,7 @@
 #include "exec.h"
 #include"FileSystem.h"
 #include"KGlobal.h"
+#include"printf.h"
 #include"vga.h"
 
 
@@ -49,6 +50,7 @@ void child(u32_t pid_parent){
   }
   //is he alive?
   Vram::init_vga();
+  init_vx_printf();
   kprintf("roop \n");
   while(1){
     // for(int i=0;i<10000000;i++);
@@ -68,8 +70,8 @@ void parent(u32_t pid_child){
   sys_recv(pid_child,&message);
   kprintf("Message content = %d \n",message.m1.p1);
   while(1){
-    // for(int i=0;i<10000000;i++);
-    // kprintf("p");
+    for(int i=0;i<10000000;i++);
+    kprintf("p");
   }
 }
 

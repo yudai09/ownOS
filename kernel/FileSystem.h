@@ -35,7 +35,7 @@ class File{
   inline u32_t block_size(){return fs->block_size();}  
   //  u32_t operator[](u32_t x);
   bool read(u32_t addr,size_t size,void *buffer);
-
+  bool read_block(u32_t addr,size_t size,void *dbuffer);
   
 };
 

@@ -73,14 +73,16 @@ bool FileSystem::read_block(u32_t pos,void *dbuffer,Ext2::ext2_inode inode){
 
 //使用上の注意　ブロックサイズ以上の読み込みはできない
 //要キャッシュ！！
-bool File::read(u32_t addr,size_t size,void *dbuffer){
+bool File::read_block(u32_t addr,size_t size,void *dbuffer){
   u8_t *buffer;
   u32_t block_size=fs->block_size();
   u32_t block_mask=fs->block_size()-1;
   kprintf("addr %x size %x \n",addr,size);
   //サイズはブロックサイズ以上ではないか
-  if(size>block_size)
+  if(size>block_size){
+    kprintf("read size is too large \n");
     return NULL;
+  }
   //読み出し範囲がブロックをまたぐか
   // またぐ場合は二つブロックを読む
 
@@ -100,4 +102,15 @@ bool File::read(u32_t addr,size_t size,void *dbuffer){
   delete[] buffer;//キャッシュしていないので開放する
   return true;
   //  return (void *)(buffer+(addr&block_mask));
+}
+bool File::read(u32_t addr,size_t size,void *dbuffer){
+  int block_size=fs->block_size();
+  int nr_blocks =  size/block_size;
+  int i=0;
+  for(;i<nr_blocks;i++){
+    read_block(addr+i*block_size,block_size,(void *)((u32_t)dbuffer+block_size*i));
+  }
+  // 残り
+  read_block(addr+i*block_size,size%block_size,(void *)((u32_t)dbuffer+block_size*i));
+
 }

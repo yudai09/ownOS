@@ -24,7 +24,8 @@ KERNEL_OBJS=loader.o kinit.o tk_printf.o mbi_read.o PFAllocator.o KGlobal.o kerr
 	FileSystem.o\
 	elf_loader.o\
 	exec.o \
-	vga.o
+	vga.o \
+	printf.o
 #	IDEDriver.o
 #EXECUTABLES=executable
 
