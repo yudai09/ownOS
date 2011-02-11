@@ -53,8 +53,8 @@ void child(u32_t pid_parent){
   init_vx_printf();
   kprintf("roop \n");
   while(1){
-    // for(int i=0;i<10000000;i++);
-    // kprintf("c");
+    for(int i=0;i<10000000;i++);
+    kprintf("c");
   }
 }
 class Test{

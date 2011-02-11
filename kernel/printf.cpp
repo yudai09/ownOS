@@ -179,7 +179,7 @@ void init_vx_printf(){
     for(int i='a';i<'z';i++){
       vx_putchar((char)i);
     }
- z`kprintf = vx_printf;
+ kprintf = vx_printf;
   //  putfont8((char *)vram_info->vram+0x100,(char)'a');
 
   // for(int i=0;i<200;i++)
