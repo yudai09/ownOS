@@ -1,7 +1,9 @@
 .PHONY: KERNEL clean
 KERNEL:
 	make -C kernel
+	make -C user
 	cp kernel/kernel.bin /mnt/hdd
+	cp user/*.elf /mnt/hdd/user/
 clean:
 	make -C kernel clean
 #覚書
