@@ -6,30 +6,40 @@
  * is freely granted, provided that this notice is preserved.
  */
 
-/*
- * @todo - Add fast<N>_t types.
- * @todo - Add support for wint_t types.
- */
-
 #ifndef _STDINT_H
 #define _STDINT_H
-
-#include <sys/types.h>
-#include <bits/wordsize.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ >= 3 ) \
-  && defined(__GNUC_MINOR__) && (__GNUC_MINOR__ > 2 ) 
+#if defined(__GNUC__) && \
+  ( (__GNUC__ >= 4) || \
+    ( (__GNUC__ >= 3) && defined(__GNUC_MINOR__) && (__GNUC_MINOR__ > 2) ) )
+/* gcc > 3.2 implicitly defines the values we are interested */
 #define __STDINT_EXP(x) __##x##__
 #else
 #define __STDINT_EXP(x) x
 #include <limits.h>
 #endif
 
+/* Check if "long long" is 64bit wide */
+/* Modern GCCs provide __LONG_LONG_MAX__, SUSv3 wants LLONG_MAX */
+#if ( defined(__LONG_LONG_MAX__) && (__LONG_LONG_MAX__ > 0x7fffffff) ) \
+  || ( defined(LLONG_MAX) && (LLONG_MAX > 0x7fffffff) )
+#define __have_longlong64 1
+#endif
+
+/* Check if "long" is 64bit or 32bit wide */
+#if __STDINT_EXP(LONG_MAX) > 0x7fffffff
+#define __have_long64 1
+#elif __STDINT_EXP(LONG_MAX) == 0x7fffffff && !defined(__SPU__)
+#define __have_long32 1
+#endif
+
 #if __STDINT_EXP(SCHAR_MAX) == 0x7f
+typedef signed char int8_t ;
+typedef unsigned char uint8_t ;
 #define __int8_t_defined 1
 #endif
 
@@ -40,10 +50,16 @@ typedef unsigned char uint_least8_t;
 #endif
 
 #if __STDINT_EXP(SHRT_MAX) == 0x7fff
+typedef signed short int16_t;
+typedef unsigned short uint16_t;
 #define __int16_t_defined 1
 #elif __STDINT_EXP(INT_MAX) == 0x7fff
+typedef signed int int16_t;
+typedef unsigned int uint16_t;
 #define __int16_t_defined 1
 #elif __STDINT_EXP(SCHAR_MAX) == 0x7fff
+typedef signed char int16_t;
+typedef unsigned char uint16_t;
 #define __int16_t_defined 1
 #endif
 
@@ -52,21 +68,28 @@ typedef int16_t   	int_least16_t;
 typedef uint16_t 	uint_least16_t;
 #define __int_least16_t_defined 1
 
-#ifndef __int_least8_t_defined
+#if !__int_least8_t_defined
 typedef int16_t	   	int_least8_t;
 typedef uint16_t  	uint_least8_t;
 #define __int_least8_t_defined 1
 #endif
 #endif
 
-#if __STDINT_EXP(INT_MAX) == 0x7fffffffL
+#if __have_long32
+typedef signed long int32_t;
+typedef unsigned long uint32_t;
 #define __int32_t_defined 1
-#elif __STDINT_EXP(LONG_MAX) == 0x7fffffffL
+#elif __STDINT_EXP(INT_MAX) == 0x7fffffffL
+typedef signed int int32_t;
+typedef unsigned int uint32_t;
 #define __int32_t_defined 1
-#define __have_long32 1
 #elif __STDINT_EXP(SHRT_MAX) == 0x7fffffffL
+typedef signed short int32_t;
+typedef unsigned short uint32_t;
 #define __int32_t_defined 1
 #elif __STDINT_EXP(SCHAR_MAX) == 0x7fffffffL
+typedef signed char int32_t;
+typedef unsigned char uint32_t;
 #define __int32_t_defined 1
 #endif
 
@@ -75,57 +98,30 @@ typedef int32_t   	int_least32_t;
 typedef uint32_t 	uint_least32_t;
 #define __int_least32_t_defined 1
 
-#ifndef __int_least8_t_defined
+#if !__int_least8_t_defined
 typedef int32_t	   	int_least8_t;
 typedef uint32_t  	uint_least8_t;
 #define __int_least8_t_defined 1
 #endif
 
-#ifndef __int_least16_t_defined
+#if !__int_least16_t_defined
 typedef int32_t	   	int_least16_t;
 typedef uint32_t  	uint_least16_t;
 #define __int_least16_t_defined 1
 #endif
 #endif
 
-/* Fast types.  */
-
-/* Signed.  */
-typedef signed char             int_fast8_t;
-#if __WORDSIZE == 64
-typedef long int                int_fast16_t;
-typedef long int                int_fast32_t;
-typedef long int                int_fast64_t;
-#else
-typedef int                     int_fast16_t;
-typedef int                     int_fast32_t;
-__extension__
-typedef long long int           int_fast64_t;
-#endif
-
-/* Unsigned.  */
-typedef unsigned char           uint_fast8_t;
-#if __WORDSIZE == 64
-typedef unsigned long int       uint_fast16_t;
-typedef unsigned long int       uint_fast32_t;
-typedef unsigned long int       uint_fast64_t;
-#else
-typedef unsigned int            uint_fast16_t;
-typedef unsigned int            uint_fast32_t;
-__extension__
-typedef unsigned long long int  uint_fast64_t;
-#endif
-
-#if __STDINT_EXP(LONG_MAX) > 0x7fffffff
+#if __have_long64
+typedef signed long int64_t;
+typedef unsigned long uint64_t;
 #define __int64_t_defined 1
-#define __have_long64 1
-#elif  defined(__LONG_LONG_MAX__) && (__LONG_LONG_MAX__ > 0x7fffffff)
+#elif __have_longlong64
+typedef signed long long int64_t;
+typedef unsigned long long uint64_t;
 #define __int64_t_defined 1
-#define __have_longlong64 1
-#elif  defined(LLONG_MAX) && (LLONG_MAX > 0x7fffffff)
-#define __int64_t_defined 1
-#define __have_longlong64 1
 #elif  __STDINT_EXP(INT_MAX) > 0x7fffffff
+typedef signed int int64_t;
+typedef unsigned int uint64_t;
 #define __int64_t_defined 1
 #endif
 
@@ -134,22 +130,89 @@ typedef int64_t   	int_least64_t;
 typedef uint64_t 	uint_least64_t;
 #define __int_least64_t_defined 1
 
-#ifndef __int_least8_t_defined
+#if !__int_least8_t_defined
 typedef int64_t	   	int_least8_t;
 typedef uint64_t  	uint_least8_t;
 #define __int_least8_t_defined 1
 #endif
 
-#ifndef __int_least16_t_defined
+#if !__int_least16_t_defined
 typedef int64_t	   	int_least16_t;
 typedef uint64_t  	uint_least16_t;
 #define __int_least16_t_defined 1
 #endif
 
-#ifndef __int_least32_t_defined
+#if !__int_least32_t_defined
 typedef int64_t	   	int_least32_t;
 typedef uint64_t  	uint_least32_t;
 #define __int_least32_t_defined 1
+#endif
+#endif
+
+/*
+ * Fastest minimum-width integer types
+ *
+ * Assume int to be the fastest type for all types with a width 
+ * less than __INT_MAX__ rsp. INT_MAX
+ */
+#if __STDINT_EXP(INT_MAX) >= 0x7f
+  typedef signed int int_fast8_t;
+  typedef unsigned int uint_fast8_t;
+#define __int_fast8_t_defined 1
+#endif
+
+#if __STDINT_EXP(INT_MAX) >= 0x7fff
+  typedef signed int int_fast16_t;
+  typedef unsigned int uint_fast16_t;
+#define __int_fast16_t_defined 1
+#endif
+
+#if __STDINT_EXP(INT_MAX) >= 0x7fffffff
+  typedef signed int int_fast32_t;
+  typedef unsigned int uint_fast32_t;
+#define __int_fast32_t_defined 1
+#endif
+
+#if __STDINT_EXP(INT_MAX) > 0x7fffffff
+  typedef signed int int_fast64_t;
+  typedef unsigned int uint_fast64_t;
+#define __int_fast64_t_defined 1
+#endif
+
+/*
+ * Fall back to [u]int_least<N>_t for [u]int_fast<N>_t types
+ * not having been defined, yet.
+ * Leave undefined, if [u]int_least<N>_t should not be available.
+ */
+#if !__int_fast8_t_defined
+#if __int_least8_t_defined
+  typedef int_least8_t int_fast8_t;
+  typedef uint_least8_t uint_fast8_t;
+#define __int_fast8_t_defined 1
+#endif
+#endif
+
+#if !__int_fast16_t_defined
+#if __int_least16_t_defined
+  typedef int_least16_t int_fast16_t;
+  typedef uint_least16_t uint_fast16_t;
+#define __int_fast16_t_defined 1
+#endif
+#endif
+
+#if !__int_fast32_t_defined
+#if __int_least32_t_defined
+  typedef int_least32_t int_fast32_t;
+  typedef uint_least32_t uint_fast32_t;
+#define __int_fast32_t_defined 1
+#endif
+#endif
+
+#if !__int_fast64_t_defined
+#if __int_least64_t_defined
+  typedef int_least64_t int_fast64_t;
+  typedef uint_least64_t uint_fast64_t;
+#define __int_fast64_t_defined 1
 #endif
 #endif
 
@@ -171,7 +234,33 @@ typedef uint64_t  	uint_least32_t;
 #else
   typedef unsigned long uintmax_t;
 #endif
-  
+
+/*
+ * GCC doesn't provide an appropriate macro for [u]intptr_t
+ * For now, use __PTRDIFF_TYPE__
+ */
+#if defined(__PTRDIFF_TYPE__)
+typedef signed __PTRDIFF_TYPE__ intptr_t;
+typedef unsigned __PTRDIFF_TYPE__ uintptr_t;
+#define INTPTR_MAX PTRDIFF_MAX
+#define INTPTR_MIN PTRDIFF_MIN
+#ifdef __UINTPTR_MAX__
+#define UINTPTR_MAX __UINTPTR_MAX__
+#else
+#define UINTPTR_MAX (2UL * PTRDIFF_MAX + 1)
+#endif
+#else
+/*
+ * Fallback to hardcoded values, 
+ * should be valid on cpu's with 32bit int/32bit void*
+ */
+typedef signed long intptr_t;
+typedef unsigned long uintptr_t;
+#define INTPTR_MAX __STDINT_EXP(LONG_MAX)
+#define INTPTR_MIN (-__STDINT_EXP(LONG_MAX) - 1)
+#define UINTPTR_MAX (__STDINT_EXP(LONG_MAX) * 2UL + 1)
+#endif
+
 /* Limits of Specified-Width Integer Types */
 
 #if __int8_t_defined
@@ -203,25 +292,37 @@ typedef uint64_t  	uint_least32_t;
 #endif
 
 #if __int32_t_defined
+#if __have_long32
+#define INT32_MIN 	 (-2147483647L-1)
+#define INT32_MAX 	 2147483647L
+#define UINT32_MAX       4294967295UL
+#else
 #define INT32_MIN 	 (-2147483647-1)
 #define INT32_MAX 	 2147483647
 #define UINT32_MAX       4294967295U
 #endif
+#endif
 
 #if __int_least32_t_defined
+#if __have_long32
+#define INT_LEAST32_MIN  (-2147483647L-1)
+#define INT_LEAST32_MAX  2147483647L
+#define UINT_LEAST32_MAX 4294967295UL
+#else
 #define INT_LEAST32_MIN  (-2147483647-1)
 #define INT_LEAST32_MAX  2147483647
 #define UINT_LEAST32_MAX 4294967295U
+#endif
 #else
 #error required type int_least32_t missing
 #endif
 
 #if __int64_t_defined
-#ifdef __have_long64
+#if __have_long64
 #define INT64_MIN 	(-9223372036854775807L-1L)
 #define INT64_MAX 	 9223372036854775807L
 #define UINT64_MAX 	18446744073709551615U
-#elif defined(__have_longlong64)
+#elif __have_longlong64
 #define INT64_MIN 	(-9223372036854775807LL-1LL)
 #define INT64_MAX 	 9223372036854775807LL
 #define UINT64_MAX 	18446744073709551615ULL
@@ -229,34 +330,133 @@ typedef uint64_t  	uint_least32_t;
 #endif
 
 #if __int_least64_t_defined
-#ifdef __have_long64
+#if __have_long64
 #define INT_LEAST64_MIN  (-9223372036854775807L-1L)
 #define INT_LEAST64_MAX  9223372036854775807L
 #define UINT_LEAST64_MAX 18446744073709551615U
-#elif defined(__have_longlong64)
+#elif __have_longlong64
 #define INT_LEAST64_MIN  (-9223372036854775807LL-1LL)
 #define INT_LEAST64_MAX  9223372036854775807LL
 #define UINT_LEAST64_MAX 18446744073709551615ULL
 #endif
 #endif
 
+#if __int_fast8_t_defined
+#if __STDINT_EXP(INT_MAX) >= 0x7f
+#define INT_FAST8_MIN	(-__STDINT_EXP(INT_MAX)-1)
+#define INT_FAST8_MAX	__STDINT_EXP(INT_MAX)
+#define UINT_FAST8_MAX	(__STDINT_EXP(INT_MAX)*2U+1U)
+#else
+#define INT_FAST8_MIN	INT_LEAST8_MIN
+#define INT_FAST8_MAX	INT_LEAST8_MAX
+#define UINT_FAST8_MAX	UINT_LEAST8_MAX
+#endif
+#endif
+
+#if __int_fast16_t_defined
+#if __STDINT_EXP(INT_MAX) >= 0x7fff
+#define INT_FAST16_MIN	(-__STDINT_EXP(INT_MAX)-1)
+#define INT_FAST16_MAX	__STDINT_EXP(INT_MAX)
+#define UINT_FAST16_MAX	(__STDINT_EXP(INT_MAX)*2U+1U)
+#else
+#define INT_FAST16_MIN	INT_LEAST16_MIN
+#define INT_FAST16_MAX	INT_LEAST16_MAX
+#define UINT_FAST16_MAX	UINT_LEAST16_MAX
+#endif
+#endif
+
+#if __int_fast32_t_defined
+#if __STDINT_EXP(INT_MAX) >= 0x7fffffff
+#define INT_FAST32_MIN	(-__STDINT_EXP(INT_MAX)-1)
+#define INT_FAST32_MAX	__STDINT_EXP(INT_MAX)
+#define UINT_FAST32_MAX	(__STDINT_EXP(INT_MAX)*2U+1U)
+#else
+#define INT_FAST32_MIN	INT_LEAST32_MIN
+#define INT_FAST32_MAX	INT_LEAST32_MAX
+#define UINT_FAST32_MAX	UINT_LEAST32_MAX
+#endif
+#endif
+
+#if __int_fast64_t_defined
+#if __STDINT_EXP(INT_MAX) > 0x7fffffff
+#define INT_FAST64_MIN	(-__STDINT_EXP(INT_MAX)-1)
+#define INT_FAST64_MAX	__STDINT_EXP(INT_MAX)
+#define UINT_FAST64_MAX	(__STDINT_EXP(INT_MAX)*2U+1U)
+#else
+#define INT_FAST64_MIN	INT_LEAST64_MIN
+#define INT_FAST64_MAX	INT_LEAST64_MAX
+#define UINT_FAST64_MAX	UINT_LEAST64_MAX
+#endif
+#endif
+
+#ifdef __INTMAX_MAX__
+#define INTMAX_MAX __INTMAX_MAX__
+#define INTMAX_MIN (-INTMAX_MAX - 1)
+#elif defined(__INTMAX_TYPE__)
+/* All relevant GCC versions prefer long to long long for intmax_t.  */
+#define INTMAX_MAX INT64_MAX
+#define INTMAX_MIN INT64_MIN
+#endif
+
+#ifdef __UINTMAX_MAX__
+#define UINTMAX_MAX __UINTMAX_MAX__
+#elif defined(__UINTMAX_TYPE__)
+/* All relevant GCC versions prefer long to long long for intmax_t.  */
+#define UINTMAX_MAX UINT64_MAX
+#endif
+
 /* This must match size_t in stddef.h, currently long unsigned int */
+#ifdef __SIZE_MAX__
+#define SIZE_MAX __SIZE_MAX__
+#else
 #define SIZE_MAX (__STDINT_EXP(LONG_MAX) * 2UL + 1)
+#endif
 
 /* This must match sig_atomic_t in <signal.h> (currently int) */
 #define SIG_ATOMIC_MIN (-__STDINT_EXP(INT_MAX) - 1)
 #define SIG_ATOMIC_MAX __STDINT_EXP(INT_MAX)
 
 /* This must match ptrdiff_t  in <stddef.h> (currently long int) */
-#define PTRDIFF_MIN (-__STDINT_EXP(LONG_MAX) - 1L)
+#ifdef __PTRDIFF_MAX__
+#define PTRDIFF_MAX __PTRDIFF_MAX__
+#else
 #define PTRDIFF_MAX __STDINT_EXP(LONG_MAX)
+#endif
+#define PTRDIFF_MIN (-PTRDIFF_MAX - 1)
+
+#ifdef __WCHAR_MAX__
+#define WCHAR_MAX __WCHAR_MAX__
+#endif
+#ifdef __WCHAR_MIN__
+#define WCHAR_MIN __WCHAR_MIN__
+#endif
+
+/* wint_t is unsigned int on almost all GCC targets.  */
+#ifdef __WINT_MAX__
+#define WINT_MAX __WINT_MAX__
+#else
+#define WINT_MAX (__STDINT_EXP(INT_MAX) * 2U + 1U)
+#endif
+#ifdef __WINT_MIN__
+#define WINT_MIN __WINT_MIN__
+#else
+#define WINT_MIN 0U
+#endif
 
 /** Macros for minimum-width integer constant expressions */
 #define INT8_C(x)	x
+#if __STDINT_EXP(INT_MAX) > 0x7f
+#define UINT8_C(x)	x
+#else
 #define UINT8_C(x)	x##U
+#endif
 
 #define INT16_C(x)	x
+#if __STDINT_EXP(INT_MAX) > 0x7fff
+#define UINT16_C(x)	x
+#else
 #define UINT16_C(x)	x##U
+#endif
 
 #if __have_long32
 #define INT32_C(x)	x##L
@@ -267,22 +467,22 @@ typedef uint64_t  	uint_least32_t;
 #endif
 
 #if __int64_t_defined
-#if __have_longlong64
-#define INT64_C(x)	x##LL
-#define UINT64_C(x)	x##ULL
-#else
+#if __have_long64
 #define INT64_C(x)	x##L
 #define UINT64_C(x)	x##UL
+#else
+#define INT64_C(x)	x##LL
+#define UINT64_C(x)	x##ULL
 #endif
 #endif
 
 /** Macros for greatest-width integer constant expression */
-#if __have_longlong64
-#define INTMAX_C(x)	x##LL
-#define UINTMAX_C(x)	x##ULL
-#else
+#if __have_long64
 #define INTMAX_C(x)	x##L
 #define UINTMAX_C(x)	x##UL
+#else
+#define INTMAX_C(x)	x##LL
+#define UINTMAX_C(x)	x##ULL
 #endif
 
 

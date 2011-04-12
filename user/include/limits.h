@@ -1,156 +1,146 @@
-/* Copyright (C) 1991, 92, 96, 97, 98, 99, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
-
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
-
-/*
- *	ISO C99 Standard: 7.10/5.2.4.2.1 Sizes of integer types	<limits.h>
- */
-
 #ifndef _LIBC_LIMITS_H_
-#define _LIBC_LIMITS_H_	1
+# define _LIBC_LIMITS_H_	1
 
-#include <features.h>
+#include <newlib.h>
 
+# ifdef _MB_LEN_MAX
+#  define MB_LEN_MAX	_MB_LEN_MAX
+# else
+#  define MB_LEN_MAX    1
+# endif
 
-/* Maximum length of any multibyte character in any locale.
-   We define this value here since the gcc header does not define
-   the correct value.  */
-#define MB_LEN_MAX	16
+/* Maximum number of positional arguments, if _WANT_IO_POS_ARGS.  */
+# ifndef NL_ARGMAX
+#  define NL_ARGMAX 32
+# endif
 
+/* if do not have #include_next support, then we
+   have to define the limits here. */
+# if !defined __GNUC__ || __GNUC__ < 2
 
-/* If we are not using GNU CC we have to define all the symbols ourself.
-   Otherwise use gcc's definitions (see below).  */
-#if !defined __GNUC__ || __GNUC__ < 2
+#  ifndef _LIMITS_H
+#   define _LIMITS_H	1
 
-/* We only protect from multiple inclusion here, because all the other
-   #include's protect themselves, and in GCC 2 we may #include_next through
-   multiple copies of this file before we get to GCC's.  */
-# ifndef _LIMITS_H
-#  define _LIMITS_H	1
+#   include <sys/config.h>
 
-#include <bits/wordsize.h>
-
-/* We don't have #include_next.
-   Define ANSI <limits.h> for standard 32-bit words.  */
-
-/* These assume 8-bit `char's, 16-bit `short int's,
-   and 32-bit `int's and `long int's.  */
-
-/* Number of bits in a `char'.	*/
-#  define CHAR_BIT	8
+/* Number of bits in a `char'.  */
+#   undef CHAR_BIT
+#   define CHAR_BIT 8
 
 /* Minimum and maximum values a `signed char' can hold.  */
-#  define SCHAR_MIN	(-128)
-#  define SCHAR_MAX	127
+#   undef SCHAR_MIN
+#   define SCHAR_MIN (-128)
+#   undef SCHAR_MAX
+#   define SCHAR_MAX 127
 
-/* Maximum value an `unsigned char' can hold.  (Minimum is 0.)  */
-#  define UCHAR_MAX	255
+/* Maximum value an `unsigned char' can hold.  (Minimum is 0).  */
+#   undef UCHAR_MAX
+#   define UCHAR_MAX 255
 
 /* Minimum and maximum values a `char' can hold.  */
-#  ifdef __CHAR_UNSIGNED__
-#   define CHAR_MIN	0
-#   define CHAR_MAX	UCHAR_MAX
-#  else
-#   define CHAR_MIN	SCHAR_MIN
-#   define CHAR_MAX	SCHAR_MAX
-#  endif
+#   ifdef __CHAR_UNSIGNED__
+#    undef CHAR_MIN
+#    define CHAR_MIN 0
+#    undef CHAR_MAX
+#    define CHAR_MAX 255
+#   else
+#    undef CHAR_MIN
+#    define CHAR_MIN (-128)
+#    undef CHAR_MAX
+#    define CHAR_MAX 127
+#   endif
 
 /* Minimum and maximum values a `signed short int' can hold.  */
-#  define SHRT_MIN	(-32768)
-#  define SHRT_MAX	32767
+#   undef SHRT_MIN
+/* For the sake of 16 bit hosts, we may not use -32768 */
+#   define SHRT_MIN (-32767-1)
+#   undef SHRT_MAX
+#   define SHRT_MAX 32767
 
-/* Maximum value an `unsigned short int' can hold.  (Minimum is 0.)  */
-#  define USHRT_MAX	65535
+/* Maximum value an `unsigned short int' can hold.  (Minimum is 0).  */
+#   undef USHRT_MAX
+#   define USHRT_MAX 65535
 
 /* Minimum and maximum values a `signed int' can hold.  */
-#  define INT_MIN	(-INT_MAX - 1)
-#  define INT_MAX	2147483647
+#   ifndef __INT_MAX__
+#    define __INT_MAX__ 2147483647
+#   endif
+#   undef INT_MIN
+#   define INT_MIN (-INT_MAX-1)
+#   undef INT_MAX
+#   define INT_MAX __INT_MAX__
 
-/* Maximum value an `unsigned int' can hold.  (Minimum is 0.)  */
-#  define UINT_MAX	4294967295U
+/* Maximum value an `unsigned int' can hold.  (Minimum is 0).  */
+#   undef UINT_MAX
+#   define UINT_MAX (INT_MAX * 2U + 1)
 
-/* Minimum and maximum values a `signed long int' can hold.  */
-#  if __WORDSIZE == 64
-#   define LONG_MAX	9223372036854775807L
-#  else
-#   define LONG_MAX	2147483647L
-#  endif
-#  define LONG_MIN	(-LONG_MAX - 1L)
+/* Minimum and maximum values a `signed long int' can hold.
+   (Same as `int').  */
+#   ifndef __LONG_MAX__
+#    if defined (__alpha__) || (defined (__sparc__) && defined(__arch64__)) || defined (__sparcv9)
+#     define __LONG_MAX__ 9223372036854775807L
+#    else
+#     define __LONG_MAX__ 2147483647L
+#    endif /* __alpha__ || sparc64 */
+#   endif
+#   undef LONG_MIN
+#   define LONG_MIN (-LONG_MAX-1)
+#   undef LONG_MAX
+#   define LONG_MAX __LONG_MAX__
 
-/* Maximum value an `unsigned long int' can hold.  (Minimum is 0.)  */
-#  if __WORDSIZE == 64
-#   define ULONG_MAX	18446744073709551615UL
-#  else
-#   define ULONG_MAX	4294967295UL
-#  endif
+/* Maximum value an `unsigned long int' can hold.  (Minimum is 0).  */
+#   undef ULONG_MAX
+#   define ULONG_MAX (LONG_MAX * 2UL + 1)
 
-#  ifdef __USE_ISOC99
+#   ifndef __LONG_LONG_MAX__
+#    define __LONG_LONG_MAX__ 9223372036854775807LL
+#   endif
 
+#   if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 /* Minimum and maximum values a `signed long long int' can hold.  */
-#   define LLONG_MAX	9223372036854775807LL
-#   define LLONG_MIN	(-LLONG_MAX - 1LL)
+#    undef LLONG_MIN
+#    define LLONG_MIN (-LLONG_MAX-1)
+#    undef LLONG_MAX
+#    define LLONG_MAX __LONG_LONG_MAX__
 
-/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0.)  */
-#   define ULLONG_MAX	18446744073709551615ULL
+/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0).  */
+#    undef ULLONG_MAX
+#    define ULLONG_MAX (LLONG_MAX * 2ULL + 1)
+#   endif
 
-#  endif /* ISO C99 */
+#  if defined (__GNU_LIBRARY__) ? defined (__USE_GNU) : !defined (__STRICT_ANSI__)
+/* Minimum and maximum values a `signed long long int' can hold.  */
+#    undef LONG_LONG_MIN
+#    define LONG_LONG_MIN (-LONG_LONG_MAX-1)
+#    undef LONG_LONG_MAX
+#    define LONG_LONG_MAX __LONG_LONG_MAX__
 
-# endif	/* limits.h  */
-#endif	/* GCC 2.  */
+/* Maximum value an `unsigned long long int' can hold.  (Minimum is 0).  */
+#    undef ULONG_LONG_MAX
+#    define ULONG_LONG_MAX (LONG_LONG_MAX * 2ULL + 1)
+#   endif
 
-#endif	/* !_LIBC_LIMITS_H_ */
+#  endif /* _LIMITS_H  */
+# endif	 /* GCC 2.  */
 
- /* Get the compiler's limits.h, which defines almost all the ISO constants.
+#endif	 /* !_LIBC_LIMITS_H_ */
 
-    We put this #include_next outside the double inclusion check because
-    it should be possible to include this file more than once and still get
-    the definitions from gcc's header.  */
 #if defined __GNUC__ && !defined _GCC_LIMITS_H_
 /* `_GCC_LIMITS_H_' is what GCC's file defines.  */
 # include_next <limits.h>
+#endif /* __GNUC__ && !_GCC_LIMITS_H_ */
 
-/* The <limits.h> files in some gcc versions don't define LLONG_MIN,
-   LLONG_MAX, and ULLONG_MAX.  Instead only the values gcc defined for
-   ages are available.  */
-# ifdef __USE_ISOC99
-#  ifndef LLONG_MIN
-#   define LLONG_MIN	LONG_LONG_MIN
-#  endif
-#  ifndef LLONG_MAX
-#   define LLONG_MAX	LONG_LONG_MAX
-#  endif
-#  ifndef ULLONG_MAX
-#   define ULLONG_MAX	ULONG_LONG_MAX
-#  endif
-# endif
+#ifndef _POSIX2_RE_DUP_MAX
+/* The maximum number of repeated occurrences of a regular expression
+ *    permitted when using the interval notation `\{M,N\}'.  */
+#define _POSIX2_RE_DUP_MAX              255
+#endif /* _POSIX2_RE_DUP_MAX  */
+
+#ifndef ARG_MAX
+#define ARG_MAX		4096
 #endif
 
-#include <linux/limits.h>
-
-#ifdef	__USE_POSIX
-/* POSIX adds things to <limits.h>.  */
-# include <bits/posix1_lim.h>
-#endif
-
-#ifdef	__USE_POSIX2
-# include <bits/posix2_lim.h>
-#endif
-
-#ifdef	__USE_XOPEN
-# include <bits/xopen_lim.h>
+#ifndef PATH_MAX
+#define PATH_MAX	4096
 #endif
 

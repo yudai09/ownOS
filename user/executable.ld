@@ -27,5 +27,6 @@ SECTIONS{
    .text :{
         *(.text)
     }
+  PROVIDE(end = .);
 }
 

@@ -59,6 +59,7 @@ void Idt::initIDT()
   set_gatedesc(desc+0x20,(u32_t)isr[0x20],KCSeg,AR_INT);
   set_gatedesc(desc+0x21,(u32_t)isr[0x21],KCSeg,AR_INT);
   set_gatedesc(desc+0x30,(u32_t)isr[0x30],KCSeg,AR_INT_p3);
+  set_gatedesc(desc+0x80,(u32_t)isr[0x30],KCSeg,AR_INT_p3);
   /*for(int i=0x20;i<0x30;i++){
     set_gatedesc(desc+i,(u32_t)isr[i],KCSeg,AR_INT);
     }*/

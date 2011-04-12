@@ -17,6 +17,7 @@ void init_kmalloc(){
 }
 
 void *kmalloc(size_t size){
+  u32_t eflags = io_load_eflags();
   cli_asm();
   kmalloc_header_ptr p = next_free;
   //アライン
@@ -35,8 +36,8 @@ void *kmalloc(size_t size){
       next_free->size -= rsize;
       //size==0になったら?
       //未定
-      sti_asm();
-      //io_store_eflags(eflags);	/* 割り込み許可フラグを元に戻す */
+      //      sti_asm();
+      io_store_eflags(eflags);	/* 割り込み許可フラグを元に戻す */
       return (u32_t *)((u32_t)p+sizeof(kmalloc_header));
     }
     //以下のwhileは無限ループにならない.
@@ -53,6 +54,7 @@ void *kmalloc(size_t size){
 
 
 void kfree(void *addr){
+  u32_t eflags = io_load_eflags();
   cli_asm();
   //  kprintf("kfree \n");
   kmalloc_header_ptr freed;
@@ -97,7 +99,8 @@ void kfree(void *addr){
     freed.set_used(false);
     prev->next = freed;
   }
-  sti_asm();
+  io_store_eflags(eflags);	/* 割り込み許可フラグを元に戻す */
+  //  sti_asm();
 }
 
 void *operator new(size_t size)

@@ -137,10 +137,12 @@ void clone_mm(const mm_struct *src_mm,mm_struct *dest_mm){
       //メモリ空間を有功にする（物理領域を割り当ててアクセス可能にする）
       varMem.enableSpace((u32_t *)p->begin,p->size,(entry_t *)dest_mm->cr3,VarMem::systempage);
       //4k単位でメモリの内容をコピーする
-      for(u32_t *addr = p->begin; addr <= p->begin+p->size ;addr+=0x1000){
-      	u32_t *phyAddr = varMem.vir2phy(addr,(entry_t *)dest_mm->cr3);//物理アドレスに変換
-	memcpy(phyAddr,addr,0x1000);
-	return;
+      kprintf("copy entry from %x size %x \n",p->begin,p->size);
+      for(u32_t addr = (u32_t)p->begin; addr <= (u32_t)p->begin+(u32_t)p->size-0x1000;addr+=0x1000){
+        //      for(u32_t *addr = (u32_t)p->begin; addr <= p->begin+p->size ;addr+=0x1000){
+      	u32_t *phyAddr = varMem.vir2phy((u32_t *)addr,(entry_t *)dest_mm->cr3);//物理アドレスに変換
+        memcpy(phyAddr,(u32_t *)addr,0x1000);
+    //	return;
       }
     }else{
       kprintf("clone_mm: strange %x %x \n",p->flags,p->begin);

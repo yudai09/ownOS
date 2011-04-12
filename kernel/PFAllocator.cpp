@@ -144,6 +144,8 @@ u32_t * PFAllocator::allocChunk(u16_t seriesNum)
       }
       //使用中の領域リストへの追加
       usedChunk(useg);
+      //ゼロ初期化（本来はいらない）
+      // bzero((void *)useg->begin,(seriesNum*ChunkSize));
       return (u32_t *)useg->begin;
     }
     pp_seg=&((*pp_seg)->np);

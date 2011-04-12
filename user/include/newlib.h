@@ -15,29 +15,29 @@
 
 /* C99 formats support (such as %a, %zu, ...) in IO functions like
  * printf/scanf enabled */
-#define _WANT_IO_C99_FORMATS 1
+/* #undef _WANT_IO_C99_FORMATS */
 
 /* long long type support in IO functions like printf/scanf enabled */
-#define _WANT_IO_LONG_LONG 1
+/* #undef _WANT_IO_LONG_LONG */
 
 /* Register application finalization function using atexit. */
 /* #undef _WANT_REGISTER_FINI */
 
 /* long double type support in IO functions like printf/scanf enabled */
-#define _WANT_IO_LONG_DOUBLE 1
+/* #undef _WANT_IO_LONG_DOUBLE */
 
 /* Positional argument support in printf functions enabled.  */
-#define _WANT_IO_POS_ARGS 1
+/* #undef _WANT_IO_POS_ARGS */
 
 /* Optional reentrant struct support.  Used mostly on platforms with
    very restricted storage.  */
 /* #undef _WANT_REENT_SMALL */
 
 /* Multibyte supported */
-#define _MB_CAPABLE 1
+/* #undef _MB_CAPABLE */
 
 /* MB_LEN_MAX */
-#define _MB_LEN_MAX 8
+#define _MB_LEN_MAX 1
 
 /* ICONV enabled */
 /* #undef _ICONV_ENABLED */

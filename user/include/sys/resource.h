@@ -1,12 +1,15 @@
-/* libc/sys/linux/sys/resource.h - Resource usage */
+#ifndef _SYS_RESOURCE_H_
+#define _SYS_RESOURCE_H_
 
-/* Written 2000 by Werner Almesberger */
+#include <sys/time.h>
 
+#define	RUSAGE_SELF	0		/* calling process */
+#define	RUSAGE_CHILDREN	-1		/* terminated child processes */
 
-#ifndef _SYS_RESOURCE_H
-#define _SYS_RESOURCE_H
-
-#include <sys/types.h>
-#include <bits/resource.h>
+struct rusage {
+  	struct timeval ru_utime;	/* user time used */
+	struct timeval ru_stime;	/* system time used */
+};
 
 #endif
+

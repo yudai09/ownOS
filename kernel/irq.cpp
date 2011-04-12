@@ -90,8 +90,9 @@ void kernelCall(void *args){
       kprintf(filepath);
       kprintf("\n");
       File *file=fs->fopen(kstring(filepath));
-      exec(file);
-      // exec()
+      bool sucess; 
+      sucess = exec(file);
+      regs->ax = sucess; 
       break;
     }
   case NR_K_SEND :

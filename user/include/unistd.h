@@ -1,18 +1,6 @@
-/* libc/sys/linux/include/unistd.h - Various standard functions */
+#ifndef _UNISTD_H_
+#define _UNISTD_H_
 
-/* Written 2000 by Werner Almesberger */
+# include <sys/unistd.h>
 
-
-#ifndef _NEWLIB_UNISTD_H
-#define _NEWLIB_UNISTD_H
-
-#include <sys/types.h>
-#include <sys/unistd.h>
-
-/* Declare some missing goodies */
-
-extern char *optarg;
-extern int optind, opterr, optopt;
-
-
-#endif
+#endif /* _UNISTD_H_ */

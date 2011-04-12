@@ -1,8 +1,2 @@
-#ifndef _SYS_STRING_H
-#define _SYS_STRING_H
-
-#ifndef __STRICT_ANSI__
-char    *_EXFUN(strsignal, (int __signo));
-#endif
-
-#endif /* _SYS_STRING_H */
+/* This is a dummy <sys/string.h> used as a placeholder for
+   systems that need to have a special header file.  */

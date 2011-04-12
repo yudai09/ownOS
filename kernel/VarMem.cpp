@@ -121,14 +121,16 @@ void VarMem::handle_pageFault(u32_t cr2,u32_t errorcode,u32_t eip){
 
 //   flashCache_asm();
 // }
-void VarMem::enableSpace(u32_t *virAddr,u32_t size,entry_t *pdir,u16_t type)
+void VarMem::enableSpace(u32_t *virAddr_r,u32_t size,entry_t *pdir,u16_t type)
 {
   entry_t *entryD;
   entry_t *table;
   entry_t *entryT;
   //pdir may be virtual address
   entry_t aligned_size = CEIL(size,0x1000);
+  u32_t *virAddr = (u32_t *)FLOOR((u32_t)virAddr_r,0x1000);
   kprintf("enablespace: varaddr %x->%x \n",(u32_t)virAddr,(u32_t)virAddr+aligned_size);
+  //  kprintf("size %x %x\n",aligned_size,size);
   flashCache_asm();//flash cache memory 
   for(int i=0;i<aligned_size/0x1000;i++){
     u32_t where=(u32_t)virAddr+i*0x1000;

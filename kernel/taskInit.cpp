@@ -22,6 +22,7 @@ int sys_esec();
 void child(u32_t pid_parent){
   Message message;
   kprintf("I'm child \n");
+
   message.m1.p1=111;
   sys_send(pid_parent,&message);
 
@@ -42,15 +43,26 @@ void child(u32_t pid_parent){
   //  FileSystem fs(root_fs);
   fs = new FileSystem(root_fs);
   kprintf("addr %x \n",&fs);
-  File *file=fs->fopen(kstring((char *)"/executable.elf"));
+  //  File *file=fs->fopen(kstring((char *)"/executable.elf"));
+
+
+  File *file=fs->fopen(kstring((char *)"/user/user.elf"));
+  kprintf("file %x \n",file);
+
   if(file->is_valid){
-    //sys_exec((char *)"/executable.elf");
+    if(sys_exec((char *)"/user/user.elf"))
+      kprintf("exec sucess \n");
+    else
+      kprintf("exec failed \n");
   }else{
     kprintf("cannot open file \n");
   }
-  //is he alive?
+  //画面を大きく
   Vram::init_vga();
   init_vx_printf();
+
+  //is he alive?
+
   kprintf("roop \n");
   while(1){
     for(int i=0;i<10000000;i++);
@@ -80,9 +92,6 @@ void taskInit(void){
   u32_t *addr =  varMem.vir2phy((u32_t *)&y);
   kprintf("taskIinit %x %x \n",&y,addr);
   u32_t parent_pid = pManager.pCurrent->id;
-  /*最後はアイドルタスクになる*/
-  int *x = (int *)0x2000000;
-  *x=1;
   int pid=sys_fork();
   if(!pid){
     child(parent_pid);

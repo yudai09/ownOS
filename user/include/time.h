@@ -5,14 +5,10 @@
  */
 
 #ifndef _TIME_H_
+#define _TIME_H_
 
 #include "_ansi.h"
 #include <sys/reent.h>
-#include <sys/linux_time.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #ifndef NULL
 #define	NULL	0
@@ -20,20 +16,6 @@ extern "C" {
 
 /* Get _CLOCKS_PER_SEC_ */
 #include <machine/time.h>
-#include <sys/types.h>
-
-/* Time Value Specification Structures, P1003.1b-1993, p. 261 */
-#ifndef _STRUCT_TIMESPEC
-#define _STRUCT_TIMESPEC
-struct timespec {
-  time_t  tv_sec;   /* Seconds */
-  long    tv_nsec;  /* Nanoseconds */
-};
-#endif /* !_STRUCT_TIMESPEC */
-
-#ifndef __need_timespec
-
-#define _TIME_H_ 1
 
 #ifndef _CLOCKS_PER_SEC_
 #define _CLOCKS_PER_SEC_ 1000
@@ -43,6 +25,10 @@ struct timespec {
 #define CLK_TCK CLOCKS_PER_SEC
 #define __need_size_t
 #include <stddef.h>
+
+#include <sys/types.h>
+
+_BEGIN_STD_C
 
 struct tm
 {
@@ -56,11 +42,6 @@ struct tm
   int	tm_yday;
   int	tm_isdst;
 };
-
-#ifndef __timer_t_defined
-# define __timer_t_defined      1
-typedef __timer_t timer_t;
-#endif
 
 clock_t	   _EXFUN(clock,    (void));
 double	   _EXFUN(difftime, (time_t _time2, time_t _time1));
@@ -78,6 +59,12 @@ char	  *_EXFUN(asctime_r,	(const struct tm *, char *));
 char	  *_EXFUN(ctime_r,	(const time_t *, char *));
 struct tm *_EXFUN(gmtime_r,	(const time_t *, struct tm *));
 struct tm *_EXFUN(localtime_r,	(const time_t *, struct tm *));
+
+_END_STD_C
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #ifndef __STRICT_ANSI__
 char      *_EXFUN(strptime,     (const char *, const char *, struct tm *));
@@ -106,6 +93,7 @@ __tzinfo_type *_EXFUN (__gettzinfo, (_VOID));
 
 /* getdate functions */
 
+#ifdef HAVE_GETDATE
 #ifndef _REENT_ONLY
 #define getdate_err (*__getdate_err())
 int *_EXFUN(__getdate_err,(_VOID));
@@ -124,6 +112,7 @@ struct tm *	_EXFUN(getdate, (const char *));
 
 /* getdate_r returns the error code as above */
 int		_EXFUN(getdate_r, (const char *, struct tm *));
+#endif /* HAVE_GETDATE */
 
 /* defines for the opengroup specifications Derived from Issue 1 of the SVID.  */
 extern __IMPORT long _timezone;
@@ -134,14 +123,25 @@ extern __IMPORT char *_tzname[2];
 #ifndef tzname
 #define tzname _tzname
 #endif
-
 #endif /* !__STRICT_ANSI__ */
 
+#ifdef __cplusplus
+}
+#endif
+
 #include <sys/features.h>
+
+#ifdef __CYGWIN__
+#include <cygwin/time.h>
+#endif /*__CYGWIN__*/
 
 #if defined(_POSIX_TIMERS)
 
 #include <signal.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Clocks, P1003.1b-1993, p. 263 */
 
@@ -170,7 +170,14 @@ int _EXFUN(timer_getoverrun, (timer_t timerid));
 
 int _EXFUN(nanosleep, (const struct timespec  *rqtp, struct timespec *rmtp));
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _POSIX_TIMERS */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* CPU-time Clock Attributes, P1003.4b/D8, p. 54 */
 
@@ -195,7 +202,7 @@ int _EXFUN(nanosleep, (const struct timespec  *rqtp, struct timespec *rmtp));
 /* Flag indicating time is "absolute" with respect to the clock
    associated with a time.  */
 
-#define TIMER_ABSTIME  4
+#define TIMER_ABSTIME	4
 
 /* Manifest Constants, P1003.4b/D8, p. 55 */
 
@@ -205,7 +212,7 @@ int _EXFUN(nanosleep, (const struct timespec  *rqtp, struct timespec *rmtp));
    the identifier of the CPU_time clock associated with the PROCESS
    making the function call.  */
 
-#define CLOCK_PROCESS_CPUTIME_ID (clockid_t)2
+#define CLOCK_PROCESS_CPUTIME (clockid_t)2
 
 #endif
 
@@ -215,7 +222,17 @@ int _EXFUN(nanosleep, (const struct timespec  *rqtp, struct timespec *rmtp));
     the identifier of the CPU_time clock associated with the THREAD
     making the function call.  */
 
-#define CLOCK_THREAD_CPUTIME_ID (clockid_t)3
+#define CLOCK_THREAD_CPUTIME (clockid_t)3
+
+#endif
+
+#if defined(_POSIX_MONOTONIC_CLOCK)
+
+/*  The identifier for the system-wide monotonic clock, which is defined
+ *      as a clock whose value cannot be set via clock_settime() and which 
+ *          cannot have backward clock jumps. */
+
+#define CLOCK_MONOTONIC (clockid_t)4
 
 #endif
 
@@ -239,10 +256,6 @@ int _EXFUN(clock_getenable_attr, (clockid_t clock_id, int *attr));
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* ! __need_timespec */
-
-#undef __need_timespec
 
 #endif /* _TIME_H_ */
 

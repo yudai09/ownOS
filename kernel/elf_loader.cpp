@@ -107,5 +107,8 @@ bool load_elf_executable(File *file){
   // void (*entry_point)()=(void (*)())header.e_entry;
   // kprintf("entrypoint %x \n",(u32_t)entry_point);
   //  entry_point();
+  kprintf("after exec \n");
+  //irq.cpp
   after_exec(header.e_entry);
+  return true;
 }

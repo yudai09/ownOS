@@ -1,108 +1,124 @@
-/* Copyright (C) 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
-
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+/* $NetBSD: complex.h,v 1.3 2010/09/15 16:11:30 christos Exp $ */
 
 /*
- *	ISO C99:  7.3 Complex arithmetic	<complex.h>
+ * Written by Matthias Drochner.
+ * Public domain.
  */
 
-#ifndef _COMPLEX_H
-#define _COMPLEX_H	1
+#ifndef	_COMPLEX_H
+#define	_COMPLEX_H
 
-#include <sys/types.h>
-#include <features.h>
+#define complex _Complex
+#define _Complex_I 1.0fi
+#define I _Complex_I
+
+#include <sys/cdefs.h>
 
 __BEGIN_DECLS
 
-#define __CONCAT(x,y) x ## y
-/* We might need to add support for more compilers here.  But since ISO
-   C99 is out hopefully all maintained compilers will soon provide the data
-   types `float complex' and `double complex'.  */
-#if __GNUC_PREREQ (2, 7) && !__GNUC_PREREQ (2, 97)
-# define _Complex __complex__
-#endif
+/* 7.3.5 Trigonometric functions */
+/* 7.3.5.1 The cacos functions */
+double complex cacos(double complex);
+float complex cacosf(float complex);
 
-#define complex		_Complex
+/* 7.3.5.2 The casin functions */
+double complex casin(double complex);
+float complex casinf(float complex);
 
-/* Narrowest imaginary unit.  This depends on the floating-point
-   evaluation method.
-   XXX This probably has to go into a gcc related file.  */
-#define _Complex_I	(__extension__ 1.0iF)
+/* 7.3.5.1 The catan functions */
+double complex catan(double complex);
+float complex catanf(float complex);
 
-/* Another more descriptive name is `I'.
-   XXX Once we have the imaginary support switch this to _Imaginary_I.  */
-#undef I
-#define I _Complex_I
+/* 7.3.5.1 The ccos functions */
+double complex ccos(double complex);
+float complex ccosf(float complex);
 
-/* The file <bits/cmathcalls.h> contains the prototypes for all the
-   actual math functions.  These macros are used for those prototypes,
-   so we can easily declare each function as both `name' and `__name',
-   and can declare the float versions `namef' and `__namef'.  */
+/* 7.3.5.1 The csin functions */
+double complex csin(double complex);
+float complex csinf(float complex);
 
-#define __MATHCALL(function, args)	\
-  __MATHDECL (_Mdouble_complex_,function, args)
-#define __MATHDECL(type, function, args) \
-  __MATHDECL_1(type, function, args); \
-  __MATHDECL_1(type, __CONCAT(__,function), args)
-#define __MATHDECL_1(type, function, args) \
-  extern type __MATH_PRECNAME(function) args __THROW
+/* 7.3.5.1 The ctan functions */
+double complex ctan(double complex);
+float complex ctanf(float complex);
 
-#define _Mdouble_ 		double
-#define __MATH_PRECNAME(name)	name
-#include <cmathcalls.h>
-#undef	_Mdouble_
-#undef	__MATH_PRECNAME
+/* 7.3.6 Hyperbolic functions */
+/* 7.3.6.1 The cacosh functions */
+double complex cacosh(double complex);
+float complex cacoshf(float complex);
 
-/* Now the float versions.  */
-#ifndef _Mfloat_
-# define _Mfloat_		float
-#endif
-#define _Mdouble_ 		_Mfloat_
-#ifdef __STDC__
-# define __MATH_PRECNAME(name)	name##f
-#else
-# define __MATH_PRECNAME(name)	name/**/f
-#endif
-#include <cmathcalls.h>
-#undef	_Mdouble_
-#undef	__MATH_PRECNAME
+/* 7.3.6.2 The casinh functions */
+double complex casinh(double complex);
+float complex casinhf(float complex);
 
-#if 0
-/* And the long double versions.  It is non-critical to define them
-   here unconditionally since `long double' is required in ISO C99.  */
-#if __STDC__ - 0 || __GNUC__ - 0 && !defined __NO_LONG_DOUBLE_MATH
-# ifndef _Mlong_double_
-#  define _Mlong_double_	long double
-# endif
-# define _Mdouble_ 		_Mlong_double_
-# ifdef __STDC__
-#  define __MATH_PRECNAME(name)	name##l
-# else
-#  define __MATH_PRECNAME(name)	name/**/l
-# endif
-# include <cmathcalls.h>
-#endif
-#endif
-#undef	_Mdouble_
-#undef	__MATH_PRECNAME
-#undef	__MATHDECL_1
-#undef	__MATHDECL
-#undef	__MATHCALL
+/* 7.3.6.3 The catanh functions */
+double complex catanh(double complex);
+float complex catanhf(float complex);
+
+/* 7.3.6.4 The ccosh functions */
+double complex ccosh(double complex);
+float complex ccoshf(float complex);
+
+/* 7.3.6.5 The csinh functions */
+double complex csinh(double complex);
+float complex csinhf(float complex);
+
+/* 7.3.6.6 The ctanh functions */
+double complex ctanh(double complex);
+float complex ctanhf(float complex);
+
+/* 7.3.7 Exponential and logarithmic functions */
+/* 7.3.7.1 The cexp functions */
+double complex cexp(double complex);
+float complex cexpf(float complex);
+
+/* 7.3.7.2 The clog functions */
+double complex clog(double complex);
+float complex clogf(float complex);
+
+/* 7.3.8 Power and absolute-value functions */
+/* 7.3.8.1 The cabs functions */
+/*#ifndef __LIBM0_SOURCE__
+/* avoid conflict with historical cabs(struct complex) */
+/* double cabs(double complex) __RENAME(__c99_cabs);
+   float cabsf(float complex) __RENAME(__c99_cabsf);
+   #endif
+*/
+double cabs(double complex) ;
+float cabsf(float complex) ;
+
+/* 7.3.8.2 The cpow functions */
+double complex cpow(double complex, double complex);
+float complex cpowf(float complex, float complex);
+
+/* 7.3.8.3 The csqrt functions */
+double complex csqrt(double complex);
+float complex csqrtf(float complex);
+
+/* 7.3.9 Manipulation functions */
+/* 7.3.9.1 The carg functions */ 
+double carg(double complex);
+float cargf(float complex);
+
+/* 7.3.9.2 The cimag functions */
+double cimag(double complex);
+float cimagf(float complex);
+/*long double cimagl(long double complex); */
+
+/* 7.3.9.3 The conj functions */
+double complex conj(double complex);
+float complex conjf(float complex);
+/*long double complex conjl(long double complex); */
+
+/* 7.3.9.4 The cproj functions */
+double complex cproj(double complex);
+float complex cprojf(float complex);
+/*long double complex cprojl(long double complex); */
+
+/* 7.3.9.5 The creal functions */
+double creal(double complex);
+float crealf(float complex);
+/*long double creall(long double complex); */
 
 __END_DECLS
 
-#endif /* complex.h */
+#endif	/* ! _COMPLEX_H */

@@ -136,10 +136,11 @@ Proc *PManager::makeSysProc()
   pro->mm->init();
   pro->mm->cr3=(u32_t)pdir;
   u32_t *stack_begin,*stack_end;
-  stack_begin = (u32_t *)(0x40000000-0x1000);
+  stack_begin = (u32_t *)(0x40000000-0x2000);
   stack_end   = (u32_t *)0x40000000;
+  u32_t stack_size  = (u32_t)stack_end-(u32_t)stack_begin;
   
-  pro->mm->add_region(stack_begin,((u32_t)stack_end-(u32_t)stack_begin),
+  pro->mm->add_region(stack_begin,stack_size,
 		      mm_region::READABLE | mm_region::WRITABLE | mm_region::SYSTEM);
 
   pro->status=Proc::TASK_STOPPED;
@@ -148,8 +149,8 @@ Proc *PManager::makeSysProc()
     //  varMem.editEntry(pdir,(u32_t)varMem.kPtables[0],VarMem::systempage);
   varMem.copyKernelDir(pdir);
   //void enableSpace(u32_t *virAddr,u32_t size,entry_t *pdir,const u16_t type);
-  varMem.enableSpace((u32_t *)(0x40000000-0x1000),0x1000,(entry_t *)pro->mm->cr3,VarMem::systempage);//stack
-
+  //varMem.enableSpace((u32_t *)(0x40000000-0x1000),0x1000,(entry_t *)pro->mm->cr3,VarMem::systempage);//stack
+  varMem.enableSpace((u32_t *)stack_begin,stack_size,(entry_t *)pro->mm->cr3,VarMem::systempage);//stack
   pro->kernel_info.ss  = (reg_t)Desc::KDSeg;
   pro->kernel_info.stack_top = (reg_t)pFAllocator.allocChunk(1)+0x1000-sizeof(void *);
   //  kprintf("stack addr %x \n",pro->kernel_info.esp);
