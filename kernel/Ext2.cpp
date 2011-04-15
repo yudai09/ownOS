@@ -174,8 +174,8 @@ Ext2::Ext2(Ata *ata){
 
   ata->read(first_blockaddr+0x400+0x400,(u8_t *)group_desc0,sizeof(ext2_group_desc));
 
-  kprintf("block_size() %x \n",super_block->block_size());
-  kprintf("bg_inode_table %x \n",group_desc0->bg_inode_table);
+  // kprintf("block_size() %x \n",super_block->block_size());
+  // kprintf("bg_inode_table %x \n",group_desc0->bg_inode_table);
 
   root_inode = get_inode(2);
   //current_inode = root_inode;

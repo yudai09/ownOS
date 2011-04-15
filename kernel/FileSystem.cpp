@@ -77,7 +77,7 @@ bool File::read_block(u32_t addr,size_t size,void *dbuffer){
   u8_t *buffer;
   u32_t block_size=fs->block_size();
   u32_t block_mask=fs->block_size()-1;
-  kprintf("addr %x size %x \n",addr,size);
+  //kprintf("addr %x size %x \n",addr,size);
   //サイズはブロックサイズ以上ではないか
   if(size>block_size){
     kprintf("read size is too large \n");
@@ -88,16 +88,16 @@ bool File::read_block(u32_t addr,size_t size,void *dbuffer){
 
   if((addr&block_mask+size)/block_size!=0){
     buffer = new u8_t[block_size*2];
-    kprintf("read 2 block from %x \n",addr&~block_mask);
+    kprintf("read 2 block from %x(%x) to %x\n",addr,addr&~block_mask,dbuffer);
     fs->read_block(addr&~block_mask,buffer,inode);
     fs->read_block(addr&~block_mask+block_size,buffer+block_size,inode);
   }
   else{
     buffer = new u8_t[block_size];
-    kprintf("read 1 block from %x \n",addr&~block_mask);
+    kprintf("read 1 block from %x(%x) to %x\n",addr,addr&~block_mask,dbuffer);
     fs->read_block(addr&~block_mask,buffer,inode);
   }
-  kprintf("read buffer %x %x %x \n",buffer[0],buffer[1],buffer[2]);
+  //  kprintf("read buffer %x %x %x \n",buffer[0],buffer[1],buffer[2]);
   memcpy(dbuffer,buffer+(addr&block_mask),size);
   delete[] buffer;//キャッシュしていないので開放する
   return true;
@@ -111,6 +111,9 @@ bool File::read(u32_t addr,size_t size,void *dbuffer){
     read_block(addr+i*block_size,block_size,(void *)((u32_t)dbuffer+block_size*i));
   }
   // 残り
-  read_block(addr+i*block_size,size%block_size,(void *)((u32_t)dbuffer+block_size*i));
+  if(size%block_size){
+    kprintf("remain \n");
+    read_block(addr+i*block_size,size%block_size,(void *)((u32_t)dbuffer+block_size*i));
+  }
 
 }

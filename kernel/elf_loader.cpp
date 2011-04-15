@@ -97,7 +97,9 @@ bool load_elf_executable(File *file){
       }
       //»Ä¤ê
       u32_t remainsz = phdr->p_memsz - nr_blocks * block_size;
-      file->read(phdr->p_offset+nr_blocks*block_size,remainsz,(u32_t *)(dest_addr+nr_blocks*block_size));
+      if(remainsz){
+        file->read(phdr->p_offset+nr_blocks*block_size,remainsz,(u32_t *)(dest_addr+nr_blocks*block_size));
+      }
       kprintf("source %x dest %x size %x \n",
               phdr->p_offset+nr_blocks*block_size,(u32_t *)(dest_addr+nr_blocks*block_size),remainsz);
       break;
