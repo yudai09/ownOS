@@ -2,7 +2,7 @@
 #include"unistd.h"
 
 int main(void){
-  printf("test \n");ss
+  printf("test \n");
   //  int x=getpid();
   for(;;);
 }

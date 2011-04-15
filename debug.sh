@@ -2,6 +2,7 @@
 
 qemu -m 128 -localtime -d int -hda /tmp/hdd.img -s -S &
 sleep 1
-gdb ./kernel/kernel.bin
+gdb ./user/user.elf
+break main
 
 continue

@@ -6,6 +6,7 @@ KERNEL:
 	cp user/*.elf /mnt/hdd/user/
 clean:
 	make -C kernel clean
+	make -C user clean
 #覚書
 #マウントオプション「-o sync」はイメージファイル(/tmp/hdd.img)と
 #マウントしたファイル（/mnt/hdd）が同期するために付けた
