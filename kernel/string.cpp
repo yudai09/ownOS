@@ -1,5 +1,5 @@
 #include"string.h"
-#include"com.h"
+#include"kcom.h"
 
 void *memset(void* buf, int value, size_t size) {
 

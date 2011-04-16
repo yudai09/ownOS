@@ -24,7 +24,6 @@ void putfont8(char *screen,char c){
 	return;
 }
 
-/*解像度を挙げた後のprintf*/
 void cls(){
   int xsize = vram_info->vx;
   int ysize = vram_info->vy;
@@ -35,7 +34,17 @@ void cls(){
     }
   }
 }
-
+void cls_line(int nline){
+  int vx_size = vram_info->vx;
+  int y_low = (nline)*font->vy;
+  int y_high= (nline+1)*font->vy;
+  unsigned char *screen = vram_info->vram;
+  for(int y=y_low;y<y_high;y++){
+    for(int x=0;x<vx_size;x++){
+      screen[y*vx_size+x]=bgcolor;
+    }
+  }
+}
 u32_t xpos;
 u32_t ypos;
 u32_t COLUMNS;
@@ -48,14 +57,10 @@ void vx_putchar(char c){
     newline:
       xpos = 0;
       ypos++;
-      //clear line
-      for(int i=xpos;i<COLUMNS;i++){
-        //*(video + (i + ypos *COLUMNS) *2) = 0;
-        putfont8((char *)((u32_t)vram_info->vram+i*Font::vx+ypos*screen_x*Font::vy),' ');
-      }
       if (ypos >= LINES){
         ypos = 0;
       }
+      cls_line(ypos);
       return;
     }
   // *(video + (xpos + ypos * COLUMNS) * 2) = c & 0xFF;
@@ -170,20 +175,8 @@ void init_vx_printf(){
   COLUMNS = cx;
   LINES   = cy;
 
-  for(int j=0;j<10;j++)
-    for(int i='a';i<'z';i++){
-      vx_putchar((char)i);
-    }
-  vx_putchar((char)'\n');
- for(int j=0;j<10;j++)
-    for(int i='a';i<'z';i++){
-      vx_putchar((char)i);
-    }
- kprintf = vx_printf;
-  //  putfont8((char *)vram_info->vram+0x100,(char)'a');
-
-  // for(int i=0;i<200;i++)
-  //   kprintf("%x",*(fonts+'a'*16+i));
+  kprintf = vx_printf;
+  
 }
 
 // class Font

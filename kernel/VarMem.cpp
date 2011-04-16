@@ -127,16 +127,19 @@ void VarMem::enableSpace(u32_t *virAddr_r,u32_t size,entry_t *pdir,u16_t type)
   entry_t *table;
   entry_t *entryT;
   //pdir may be virtual address
+  u32_t begin,end;
+  begin =FLOOR((u32_t)virAddr_r,0x1000);
+  end = CEIL((u32_t)virAddr_r+size,0x1000);
+  int page_num = (end-begin)/0x1000;
+
   entry_t aligned_size = CEIL(size,0x1000);
-  u32_t *virAddr = (u32_t *)FLOOR((u32_t)virAddr_r,0x1000);
-  kprintf("enablespace: varaddr %x->%x \n",(u32_t)virAddr,(u32_t)virAddr+aligned_size);
-  //  kprintf("size %x %x\n",aligned_size,size);
+  //  u32_t *virAddr = (u32_t *)FLOOR((u32_t)virAddr_r,0x1000);
+
   flashCache_asm();//flash cache memory 
-  for(int i=0;i<aligned_size/0x1000;i++){
-    u32_t where=(u32_t)virAddr+i*0x1000;
-    //    entryD=mapP2V_4k(&pdir[where/0x400000],0);//mapping temporary
+  for(int i=0;i<page_num;i++){
+    //    u32_t where=(u32_t)virAddr+i*0x1000;
+    u32_t where=begin+i*0x1000;
     entryD=&pdir[where/0x400000];//mapping temporary
-    //    kprintf("entryD %x \n",entryD);
     if(!isEntryExist(*entryD)){//entry exist?
       table=(entry_t *)pFAllocator.allocChunk(1);//table
       editEntry(entryD,(u32_t)table,type);

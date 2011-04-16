@@ -3,7 +3,7 @@
 #include "kernel_call.h"
 #include "Ipc.h"
 #include "task.h"
-
+#include "asmfunc.h"
 #include "taskSys.h"
 
 int sys_exec(char *filepath){

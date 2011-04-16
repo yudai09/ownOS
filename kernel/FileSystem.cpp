@@ -86,15 +86,15 @@ bool File::read_block(u32_t addr,size_t size,void *dbuffer){
   //読み出し範囲がブロックをまたぐか
   // またぐ場合は二つブロックを読む
 
-  if((addr&block_mask+size)/block_size!=0){
+  if(((addr&block_mask)+size)>block_size){
     buffer = new u8_t[block_size*2];
-    kprintf("read 2 block from %x(%x) to %x\n",addr,addr&~block_mask,dbuffer);
+    kprintf("read 2 block from %x(%x) to %x (size %x)\n",addr,addr&~block_mask,dbuffer,size);
     fs->read_block(addr&~block_mask,buffer,inode);
     fs->read_block(addr&~block_mask+block_size,buffer+block_size,inode);
   }
   else{
     buffer = new u8_t[block_size];
-    kprintf("read 1 block from %x(%x) to %x\n",addr,addr&~block_mask,dbuffer);
+    kprintf("read 1 block from %x(%x) to %x (size %x)\n",addr,addr&~block_mask,dbuffer,size);
     fs->read_block(addr&~block_mask,buffer,inode);
   }
   //  kprintf("read buffer %x %x %x \n",buffer[0],buffer[1],buffer[2]);
@@ -103,17 +103,38 @@ bool File::read_block(u32_t addr,size_t size,void *dbuffer){
   return true;
   //  return (void *)(buffer+(addr&block_mask));
 }
+//addr:ディスクのアドレス size:読み込むサイズ dbuffer:読み込む先
 bool File::read(u32_t addr,size_t size,void *dbuffer){
   int block_size=fs->block_size();
-  int nr_blocks =  size/block_size;
-  int i=0;
-  for(;i<nr_blocks;i++){
-    read_block(addr+i*block_size,block_size,(void *)((u32_t)dbuffer+block_size*i));
-  }
-  // 残り
-  if(size%block_size){
-    kprintf("remain \n");
-    read_block(addr+i*block_size,size%block_size,(void *)((u32_t)dbuffer+block_size*i));
+
+  if(size>block_size){
+    //ブロックサイズで区切ると余る部分
+    int edge_size = block_size - (addr % block_size);
+    int remain_size = size-edge_size;
+    int nr_blocks =  remain_size/block_size;
+  
+    u32_t src  = addr;
+    u32_t dest = (u32_t)dbuffer;
+    if(edge_size)
+      read_block(src,edge_size,(void *)dest);
+    
+    int i=0;  
+    //先頭ブロックのアドレス
+    src = src + edge_size;
+    dest = dest+edge_size;
+    for(;i<nr_blocks;i++){
+      read_block(src,block_size,(void *)dest);
+      src+=block_size;
+      dest+=block_size;
+    }
+    // 残り
+    remain_size = remain_size % block_size;
+    if(remain_size){
+      //kprintf("remain size %x %x->%x\n",remain_size,src,dest);
+      read_block(src,remain_size,(void *)dest);
+    }
+  }else{
+    read_block(addr,size,dbuffer);
   }
 
 }

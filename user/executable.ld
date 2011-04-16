@@ -1,7 +1,6 @@
 SECTIONS{
     . = 0x40000000;
-
-    .rodata ALIGN (0x1000) : {
+        .rodata ALIGN (0x1000) : {
         *(.rodata)
     }
 
@@ -15,6 +14,7 @@ SECTIONS{
         *(.bss)
         ebss = .;
     }
+    PROVIDE(end = .);
 	.data ALIGN (0x1000) : {
    	start_ctors = .;
    	*(.ctor*)
@@ -24,9 +24,11 @@ SECTIONS{
    	end_dtors = .;
    	*(.data)
 	}
+
    .text :{
+        crt0.o(.text)   
         *(.text)
     }
-  PROVIDE(end = .);
+
 }
 

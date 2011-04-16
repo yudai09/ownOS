@@ -11,7 +11,7 @@ CPP_OPTIONS	=	$(INCLUDE) -O0 -fno-builtin -nostdlib -fno-exceptions -nostartfile
 NASM_OPTIONS	=	-g
 CC_EXTRA_OPTIONS= -Werror #警告でストップ
 #INCLUDE	=	-I./include
-INCLUDE		=
+INCLUDE		= -I../include/os/ -I../include/
 #_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
 KERNEL_OBJS=loader.o kinit.o tk_printf.o mbi_read.o PFAllocator.o KGlobal.o kerror.o string.o\
 	Descriptor.o Tss.o VarMem.o Timer.o Process.o irq.o asmfunc.o \

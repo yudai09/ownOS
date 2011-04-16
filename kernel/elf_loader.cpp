@@ -75,42 +75,34 @@ bool load_elf_executable(File *file){
   for(int i=0;i<header.e_phnum;i++){
     switch(phdr->p_type){
     case PT_LOAD:
-      kprintf("pt_load:");
-      kprintf("(type %x offset %x vaddr %x size %x) \n",
-              phdr->p_type,phdr->p_offset,phdr->p_vaddr,phdr->p_memsz);
-      // int nr_pages = phdr->p_memsz/PFAllocator::ChunkSize;//ページ数
-      // u32_t **pages = new u32_t *[nr_pages];
-      /*ページテーブルを設定
-       領域も確保される*/
-      //      cli_asm();//一応排他処理
-
-      varMem.enableSpace((u32_t *)phdr->p_vaddr,(u32_t)phdr->p_memsz,
-                         (entry_t *)pManager.pCurrent->mm->cr3,
-                         VarMem::userpage);
-      // sti_asm();
-      //      for(;;);
-      int block_size = file->block_size();
-      u32_t dest_addr =  (u32_t)phdr->p_vaddr;
-      int nr_blocks = phdr->p_memsz/block_size;
-      for(int i=0;i<nr_blocks;i++){
-        file->read(phdr->p_offset+i*block_size,block_size,(u32_t *)(dest_addr+i*block_size));
+      {
+        kprintf("pt_load:");
+        kprintf("(type %x offset %x vaddr %x size %x) \n",
+                phdr->p_type,phdr->p_offset,phdr->p_vaddr,phdr->p_memsz);
+        kprintf("enable space (%x,%x) \n",phdr->p_vaddr,phdr->p_vaddr+phdr->p_memsz);
+        varMem.enableSpace((u32_t *)phdr->p_vaddr,(u32_t)phdr->p_memsz,
+                           (entry_t *)pManager.pCurrent->mm->cr3,
+                           VarMem::userpage);
+        
+        u32_t dest_addr =  (u32_t)phdr->p_vaddr;
+        file->read(phdr->p_offset,phdr->p_memsz,(u32_t *)dest_addr);
+        break;
       }
-      //残り
-      u32_t remainsz = phdr->p_memsz - nr_blocks * block_size;
-      if(remainsz){
-        file->read(phdr->p_offset+nr_blocks*block_size,remainsz,(u32_t *)(dest_addr+nr_blocks*block_size));
+    default:
+      {
+        kprintf("default:");
+        kprintf("(type %x offset %x vaddr %x size %x) \n",
+                phdr->p_type,phdr->p_offset,phdr->p_vaddr,phdr->p_memsz);
       }
-      kprintf("source %x dest %x size %x \n",
-              phdr->p_offset+nr_blocks*block_size,(u32_t *)(dest_addr+nr_blocks*block_size),remainsz);
       break;
     }
+
     phdr++;
   }
   // void (*entry_point)()=(void (*)())header.e_entry;
   // kprintf("entrypoint %x \n",(u32_t)entry_point);
   //  entry_point();
-  kprintf("after exec \n");
-  //irq.cpp
+  kprintf("after exec eip %x \n",header.e_entry);
   after_exec(header.e_entry);
   return true;
 }

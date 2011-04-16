@@ -19,12 +19,30 @@ extern "C" {void taskInit();}
 #define IRQ_SECONDARY 15
 int sys_fork();
 int sys_esec();
+
+void tty_proc(){
+
+  while(1){
+    for(int i=0;i<1000000;i++);
+    kprintf("t");    
+  }
+}
+void fork_sysprocs(){
+  kprintf("tty_proc \n");
+  //画面を大きく
+  Vram::init_vga();
+  init_vx_printf();
+  int pid=sys_fork();
+  if(!pid){
+    tty_proc();
+  }
+}
 void child(u32_t pid_parent){
-  Message message;
+  // Message message;
   kprintf("I'm child \n");
 
-  message.m1.p1=111;
-  sys_send(pid_parent,&message);
+  // message.m1.p1=111;
+  // sys_send(pid_parent,&message);
 
   Ata *atadev = new Ata((char *)"hdd");
   //  Ext2 ext2_fs(atadev);
@@ -32,42 +50,21 @@ void child(u32_t pid_parent){
   kvector<kstring> path(1);
   path[0] = "executable";
 
-  // if(!root_fs->set_current_path(path)){
-  //   kprintf("cannot find file");
-  // }else{
-  //   u8_t *buffer = new u8_t[root_fs->blocksize()];
-  //   root_fs->read_cn_block(14*0x400,buffer);
-  //   load_elf_executable(path,*root_fs);
-  // }
-  
-  //  FileSystem fs(root_fs);
   fs = new FileSystem(root_fs);
   kprintf("addr %x \n",&fs);
-  //  File *file=fs->fopen(kstring((char *)"/executable.elf"));
 
 
+  fork_sysprocs();
   File *file=fs->fopen(kstring((char *)"/user/user.elf"));
   kprintf("file %x \n",file);
 
-  if(file->is_valid){
-    if(sys_exec((char *)"/user/user.elf"))
-      kprintf("exec sucess \n");
-    else
-      kprintf("exec failed \n");
-  }else{
+  if(!file->is_valid){
     kprintf("cannot open file \n");
   }
-  //画面を大きく
-  Vram::init_vga();
-  init_vx_printf();
-
-  //is he alive?
-
-  kprintf("roop \n");
-  while(1){
-    for(int i=0;i<10000000;i++);
-    kprintf("c");
+  if(!sys_exec((char *)"/user/user.elf")){
+    kprintf("exec failed \n");
   }
+  for(;;);
 }
 class Test{
 public:
@@ -79,11 +76,12 @@ void parent(u32_t pid_child){
   Message message;
   kprintf("I'm parent \n");
   
-  sys_recv(pid_child,&message);
-  kprintf("Message content = %d \n",message.m1.p1);
   while(1){
-    for(int i=0;i<10000000;i++);
+    //    sys_recv(0x100,&message);
+    //kprintf("Message content = %d \n",message.m1.p1);
+    for(int i=0;i<1000000;i++);
     kprintf("p");
+
   }
 }
 
