@@ -6,8 +6,8 @@
 #include "asmfunc.h"
 #include "taskSys.h"
 
-int sys_exec(char *filepath){
-  return kernel_call_asm(NR_K_EXEC,(u32_t)filepath);
+int sys_exec(char *filepath,enum priv p){
+  return kernel_call_asm(NR_K_EXEC,(u32_t)filepath,p);
 }
 int sys_fork(){
   return kernel_call_asm(NR_K_FORK);

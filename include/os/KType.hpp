@@ -3,6 +3,11 @@
 
 #define NULL 0
 
+enum priv{
+  priv_system,
+  priv_user,
+};
+
 
 struct TSS32 {
         unsigned int backlink, esp0, ss0, esp1, ss1, esp2, ss2, cr3;

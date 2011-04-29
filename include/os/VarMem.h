@@ -14,6 +14,7 @@
 
 
 class VarMem {
+
   //ページテーブル一つが持っているエントリ数(1024)
   const static u32_t nrEntry=0x400;
 
@@ -27,6 +28,13 @@ class VarMem {
     return (u32_t *)(entry & ~(0xfff));
   }
  public:
+  enum memmap{
+    sys_stack_begin_init= 0x40000000-0x2000,
+    sys_stack_end =  0x40000000,
+    user_stack_begin_init = 0x80000000-0x2000,
+    user_stack_end = 0x80000000,
+  };
+
   const static u16_t invalidpage=0x000;
   const static u16_t kernelpage=0x011;
   const static u16_t systempage=0x013;

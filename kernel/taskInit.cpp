@@ -55,13 +55,15 @@ void child(u32_t pid_parent){
 
 
   fork_sysprocs();
+  
   File *file=fs->fopen(kstring((char *)"/user/user.elf"));
   kprintf("file %x \n",file);
 
   if(!file->is_valid){
     kprintf("cannot open file \n");
   }
-  if(!sys_exec((char *)"/user/user.elf")){
+  //ユーザ権限のプロセスを作成
+  if(!sys_exec((char *)"/user/user.elf",priv_user)){
     kprintf("exec failed \n");
   }
   for(;;);

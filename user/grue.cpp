@@ -132,25 +132,29 @@ int read(int file, char *ptr, int len){
 //     it exploits the symbol end automatically defined by the GNU linker. 	
 
 extern "C" {caddr_t sbrk(int incr);}
+void error(){
+  for(;;);
+}
 caddr_t sbrk(int incr){
   extern char end;		/* Defined by the linker */
-  static char *heap_end;
-  char *prev_heap_end;
-  
-  return 0;
+  static unsigned char *heap_end;
+  unsigned char *prev_heap_end;
+  //i don't know well;;
+  register unsigned char *stack_ptr asm ("sp");
 
-  /* if (heap_end == 0) { */
-  /*   heap_end = &end; */
-  /* } */
-  /* prev_heap_end = heap_end; */
-  /* if (heap_end + incr > stack_ptr) */
-  /*   { */
-  /*     _write (1, "Heap and stack collision\n", 25); */
-  /*     abort (); */
-  /*   } */
+  if (heap_end == 0) {
+    heap_end = (unsigned char *)&end;
+  }
+  prev_heap_end = (unsigned char *)heap_end;
+  if (heap_end + incr > stack_ptr)
+    {
+      // _write (1, "Heap and stack collision\n", 25);
+      // abort ();
+      error();
+    }
   
-  /* heap_end += incr; */
-  /* return (caddr_t) prev_heap_end; */
+  heap_end += incr;
+  return (caddr_t) prev_heap_end;
 }
 
 // stat
@@ -202,9 +206,7 @@ int wait(int *status) {
 extern "C" {int write(int file, char *ptr, int len);}
 int write(int file, char *ptr, int len){
   int todo;
-  
   Message message;
-
   sys_send((pid_t)0,&message);
   return 0;
 }

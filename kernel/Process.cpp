@@ -33,6 +33,7 @@ void mm_struct::add_region(const mm_region *region){
   mm_region *new_region = (mm_region *)kmalloc(sizeof(mm_region));
   p->next = new_region;
   *new_region=*region;
+  new_region->next=NULL;
 }
 
 Proc::Proc()
@@ -127,33 +128,44 @@ Proc *PManager::allocProc(){
 }
 extern "C" {void kernel2user(void);}
 
+static Proc *pro;
+
+static void register_stack(u32_t begin,u32_t end,bool is_user){
+  u32_t size =  end-begin;
+  kprintf("begin %x,end %x \n",begin,end);
+  if(is_user){
+    pro->mm->add_region((u32_t *)begin,size,
+                        mm_region::READABLE | mm_region::WRITABLE);
+    varMem.enableSpace((u32_t *)begin,size,(entry_t *)pro->mm->cr3,VarMem::userpage);
+  }else{
+    pro->mm->add_region((u32_t *)begin,size,
+                        mm_region::READABLE | mm_region::WRITABLE| mm_region::SYSTEM);
+    varMem.enableSpace((u32_t *)begin,size,(entry_t *)pro->mm->cr3,VarMem::systempage);
+  }
+}
 Proc *PManager::makeSysProc()
 {
-  Proc *pro=allocProc();
-  entry_t *pdir=(entry_t *)pFAllocator.allocChunk(1);
+  entry_t *pdir;
+
+  pro=(Proc *)allocProc();
+  pdir=(entry_t *)pFAllocator.allocChunk(1);
 
   pro->mm = (mm_struct *)kmalloc(sizeof(mm_struct));
   pro->mm->init();
   pro->mm->cr3=(u32_t)pdir;
-  u32_t *stack_begin,*stack_end;
-  stack_begin = (u32_t *)(0x40000000-0x2000);
-  stack_end   = (u32_t *)0x40000000;
-  u32_t stack_size  = (u32_t)stack_end-(u32_t)stack_begin;
-  
-  pro->mm->add_region(stack_begin,stack_size,
-		      mm_region::READABLE | mm_region::WRITABLE | mm_region::SYSTEM);
 
   pro->status=Proc::TASK_STOPPED;
   pro->prior=Psys;
 
-    //  varMem.editEntry(pdir,(u32_t)varMem.kPtables[0],VarMem::systempage);
   varMem.copyKernelDir(pdir);
-  //void enableSpace(u32_t *virAddr,u32_t size,entry_t *pdir,const u16_t type);
-  //varMem.enableSpace((u32_t *)(0x40000000-0x1000),0x1000,(entry_t *)pro->mm->cr3,VarMem::systempage);//stack
-  varMem.enableSpace((u32_t *)stack_begin,stack_size,(entry_t *)pro->mm->cr3,VarMem::systempage);//stack
+
+  // register_stack(0x40000000-0x2000,0x40000000,true);
+  // register_stack(0x80000000-0x2000,0x80000000,true);
+  register_stack(VarMem::sys_stack_begin_init,VarMem::sys_stack_end,true);
+  register_stack(VarMem::user_stack_begin_init,VarMem::user_stack_end,true);
+
   pro->kernel_info.ss  = (reg_t)Desc::KDSeg;
   pro->kernel_info.stack_top = (reg_t)pFAllocator.allocChunk(1)+0x1000-sizeof(void *);
-  //  kprintf("stack addr %x \n",pro->kernel_info.esp);
   pro->kernel_info.cs  = (reg_t)Desc::KCSeg;
   pro->kernel_info.ret_from  = (reg_t)kernel2user;
 

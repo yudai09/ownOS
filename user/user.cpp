@@ -1,5 +1,7 @@
 #include<stdio.h>
+#include<stdlib.h>
 #include<syscall.h>
+
 #include<Ipc.h>
 class Test{
   int x;
@@ -10,10 +12,9 @@ class Test{
 };
 Test test;
 
-
 int main(void){
-  //  printf("test \n");
-  //  int x=getpid();
+  //  printf("hello");うまくいかない・・・
+  puts("hello");
   for(;;);
 }
 

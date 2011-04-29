@@ -52,18 +52,25 @@ void stackException(void *args)
 }
 void generalException(void *args)
 {
+  //  stack_frame_s *regs = (stack_frame_s *)&args;
   kprintf("generalException\n");
   for(;;);
 }
 
 void handle_pageFault(u32_t cr2,u32_t errorcode,u32_t eip);
 
+enum{
+  is_present=1,
+  is_write=2,
+  is_user=4,
+};
 void pageFault(void *args){
   u32_t *uargs = (u32_t *)&args;
   u32_t cr2 = uargs[0];
   u32_t errorcode = uargs[1];
   u32_t eip = uargs[2];
-  kprintf("pageFault cr2 %x errorcode %x eip %x \n",cr2,errorcode,eip);
+  kprintf("pageFault cr2 %x errorcode %x(I:R:U:W:P) eip %x \n",cr2,errorcode,eip);
+
   kprintf("pid 0x%x \n",pManager.pCurrent->id);
   varMem.handle_pageFault(cr2,errorcode,eip);
   for(;;);
@@ -87,12 +94,22 @@ void kernelCall(void *args){
   case NR_K_EXEC :
     {
       char *filepath=(char *)uargs[1];
+      enum priv pri=(enum priv)uargs[2];
+
       kprintf(filepath);
       kprintf("\n");
       File *file=fs->fopen(kstring(filepath));
-      bool sucess; 
-      sucess = exec(file);
-      regs->ax = sucess; 
+      bool success; 
+      success = exec(file);
+      // system->user ok
+      // user->system no 
+      if(pri==priv_user){
+        regs->gs=regs->fs=regs->es=regs->ds=regs->ss=Desc::UDSeg|3;
+        regs->cs=Desc::UCSeg|3;
+        regs->sp=VarMem::user_stack_end-0x10; 
+      }
+
+      regs->ax = success; 
       break;
     }
   case NR_K_SEND :

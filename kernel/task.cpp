@@ -28,7 +28,7 @@ void init_tasks()
   load_cr3_asm(pinit->mm->cr3);
   timer.reset_quantum(pManager.interval[0],pinit->id);
 
-  taskswitch_asm(Desc::TCSeg|1,Desc::TDSeg|1,(u32_t)taskInit,0x40000000-0x20);
+  taskswitch_asm(Desc::TCSeg|1,Desc::TDSeg|1,(u32_t)taskInit,VarMem::sys_stack_end-0x10);
 }
 /*void print_context(const Proc *pro){
   stack_frame_s *frame =(stack_frame_s *)((u32_t)pro->kernel_info.stack_top-sizeof(stack_frame_s));
@@ -133,19 +133,20 @@ void clone_mm(const mm_struct *src_mm,mm_struct *dest_mm){
   while(p->next != NULL){
     p =  p->next;
     dest_mm->add_region(p);
+
+    //メモリ空間を有功にする（物理領域を割り当ててアクセス可能にする）
     if(p->flags & mm_region::SYSTEM){
-      //メモリ空間を有功にする（物理領域を割り当ててアクセス可能にする）
       varMem.enableSpace((u32_t *)p->begin,p->size,(entry_t *)dest_mm->cr3,VarMem::systempage);
-      //4k単位でメモリの内容をコピーする
-      kprintf("copy entry from %x size %x \n",p->begin,p->size);
-      for(u32_t addr = (u32_t)p->begin; addr <= (u32_t)p->begin+(u32_t)p->size-0x1000;addr+=0x1000){
-        //      for(u32_t *addr = (u32_t)p->begin; addr <= p->begin+p->size ;addr+=0x1000){
-      	u32_t *phyAddr = varMem.vir2phy((u32_t *)addr,(entry_t *)dest_mm->cr3);//物理アドレスに変換
-        memcpy(phyAddr,(u32_t *)addr,0x1000);
-    //	return;
-      }
     }else{
-      kprintf("clone_mm: strange %x %x \n",p->flags,p->begin);
+      varMem.enableSpace((u32_t *)p->begin,p->size,(entry_t *)dest_mm->cr3,VarMem::userpage);
+    }
+    //4k単位でメモリの内容をコピーする
+    kprintf("copy entry from %x size %x \n",p->begin,p->size);
+    for(u32_t addr = (u32_t)p->begin; addr <= (u32_t)p->begin+(u32_t)p->size-0x1000;addr+=0x1000){
+      //      for(u32_t *addr = (u32_t)p->begin; addr <= p->begin+p->size ;addr+=0x1000){
+      u32_t *phyAddr = varMem.vir2phy((u32_t *)addr,(entry_t *)dest_mm->cr3);//物理アドレスに変換
+      memcpy(phyAddr,(u32_t *)addr,0x1000);
+      //	return;
     }
   }
 }
