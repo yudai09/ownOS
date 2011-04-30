@@ -9,7 +9,8 @@ void init_mouse_keyboard(void);
 void init_pit(void);
 void init_tasks(void);
 void init_kmalloc(void);
-extern "C" {void init_pic(void);}//NASM
+//extern "C" {void init_pic(void);}//NASM
+void init_pic();
 
 void kinit( void* mbd, unsigned int magic )
 {

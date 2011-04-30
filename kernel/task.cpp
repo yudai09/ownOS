@@ -22,7 +22,6 @@ void init_tasks()
   pManager.enque(pinit);
   pManager.pCurrent=pinit;
 
-  kprintf("init TSS.esp %x \n",pinit->kernel_info.stack_top);
   tss.setFrame2TSS(pinit->kernel_info);
 
   load_cr3_asm(pinit->mm->cr3);
@@ -55,7 +54,7 @@ void ret_to_user(void){
 	       : "=r" (__dummy): "r" (frame_curr));
 }
 pid_t ret_from_fork(void){
-  kprintf("ret_from_fork \n");
+  //  kprintf("ret_from_fork \n");
   Proc *current = pManager.pCurrent;
   stack_frame_s *frame =(stack_frame_s *)((u32_t)current->kernel_info.stack_top-sizeof(stack_frame_s));
   frame->ax = 0;//返り値
@@ -141,7 +140,6 @@ void clone_mm(const mm_struct *src_mm,mm_struct *dest_mm){
       varMem.enableSpace((u32_t *)p->begin,p->size,(entry_t *)dest_mm->cr3,VarMem::userpage);
     }
     //4k単位でメモリの内容をコピーする
-    kprintf("copy entry from %x size %x \n",p->begin,p->size);
     for(u32_t addr = (u32_t)p->begin; addr <= (u32_t)p->begin+(u32_t)p->size-0x1000;addr+=0x1000){
       //      for(u32_t *addr = (u32_t)p->begin; addr <= p->begin+p->size ;addr+=0x1000){
       u32_t *phyAddr = varMem.vir2phy((u32_t *)addr,(entry_t *)dest_mm->cr3);//物理アドレスに変換
@@ -187,7 +185,6 @@ pid_t fork(void)
   return clone->id;
 }
 void sleep(void (*callback)(void)){
-  kprintf("set call back \n");
   pManager.pCurrent->kernel_info.ret_from = (reg_t)callback;
   sleep(pManager.pCurrent->id,-1);
 }

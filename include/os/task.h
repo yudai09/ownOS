@@ -1,17 +1,6 @@
 #ifndef _TASK_H
 #define _TASK_H
 
-enum PIDS{
-  PID_INVALID = -2,
-  PID_KERNEL = -1,
-  PID_INIT   = 1,
-  PID_SYSTASK = 2,
-  PID_PMAN,
-  PID_IDLE,
-  PID_ANY,//IPC use
-};
-
-
 extern "C" {void schedule();}
 extern "C" {void kernel2user();}
 extern "C" {void taskInit();}

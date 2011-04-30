@@ -81,14 +81,13 @@ void kernelCall(void *args){
   //  kprintf("kernelCall %p %p %p \n",arg1,arg2,arg3);
 //  u32_t *uargs=(u32_t *)&args;    
   stack_frame_s *regs = (stack_frame_s *)&args;
-  kprintf("&args %x regs %x %x\n",&args,regs);
 
   u32_t uargs[4];
   uargs[0] = regs->ax;
   uargs[1] = regs->bx;
   uargs[2] = regs->cx;
   uargs[3] = regs->dx;
-  kprintf("kernelcall %x %x %x \n",uargs[0],uargs[1],uargs[2]);
+  //  kprintf("kernelcall %x %x %x \n",uargs[0],uargs[1],uargs[2]);
 
   switch(uargs[0]){
   case NR_K_EXEC :
@@ -126,7 +125,6 @@ void kernelCall(void *args){
       mess.id=pManager.pCurrent->id;
       //      Message mess(pManager.pCurrent->id);//myid
       Ipc::recv(uargs[1],mess);
-      kprintf("message.p1 %d \n",mess.m1.p1);
       break;
     }
   case NR_K_FORK :
@@ -137,6 +135,7 @@ void kernelCall(void *args){
       break;
     }
   default:
+    kprintf("INVALID KERNEL_CALL \n");
     break;
   }
 }

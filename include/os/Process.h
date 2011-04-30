@@ -57,9 +57,11 @@ class Proc{
   struct kernel_info_s kernel_info;
   //struct stack_frame_s *stkf;
   //    MessageInfo send_any;//使うかどうかわからん
-  Message recv_any;
+  //  Message recv_any;
+
   Que <Message,nrMessage> recvQ;
   Que <Message,nrMessage> sendQ;
+  Que <Message,nrMessage> recv_anyQ;
   Proc();
   void init();
   /*  inline u32_t *stk_top(){

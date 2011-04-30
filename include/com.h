@@ -4,6 +4,16 @@
 #include<Type.hpp>
 #include<string.h>
 //macro
+enum PIDS{
+  PID_INVALID = -2,
+  PID_KERNEL = -1,
+  PID_INIT   = 1,
+  PID_SYSTASK = 2,
+  PID_PMAN,
+  PID_IDLE,
+  PID_ANY,//IPC use
+};
+
 #define MAX(x,y) ((x>y)? x:y)
 #define MIN(x,y) ((x<y)? x:y)
 #define ABS(x) ((x>0)? x:-x)

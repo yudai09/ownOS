@@ -41,7 +41,8 @@ Proc::Proc()
    next(NULL),
    status(TASK_INIT),
    recvQ(Ipc::invMessage),
-   sendQ(Ipc::invMessage)
+   sendQ(Ipc::invMessage),
+   recv_anyQ(Ipc::invMessage)
 {
   prior=PManager::Papp;
   //まだこの段階ではKMALLOCが使えない
@@ -132,7 +133,7 @@ static Proc *pro;
 
 static void register_stack(u32_t begin,u32_t end,bool is_user){
   u32_t size =  end-begin;
-  kprintf("begin %x,end %x \n",begin,end);
+
   if(is_user){
     pro->mm->add_region((u32_t *)begin,size,
                         mm_region::READABLE | mm_region::WRITABLE);

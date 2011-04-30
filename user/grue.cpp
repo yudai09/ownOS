@@ -207,7 +207,7 @@ extern "C" {int write(int file, char *ptr, int len);}
 int write(int file, char *ptr, int len){
   int todo;
   Message message;
-  sys_send((pid_t)0,&message);
+  sys_send((pid_t)PID_INIT,&message);
   return 0;
 }
 

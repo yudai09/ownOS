@@ -37,7 +37,9 @@ void VarMem::initPaging(void){
   //物理メモリの最大アドレスまでマッピング（切り捨てあり）
   u32_t nr_valid_pages = bootinfo.mem_size/dir_entrySize;
   entry_t *big_frame = pFAllocator.allocChunk(nr_valid_pages);
-  kprintf("nr_valid_pages %x \n",nr_valid_pages);
+  /////////////////////////////////////////////////////
+  // kprintf("nr_valid_pages %x \n",nr_valid_pages); //
+  /////////////////////////////////////////////////////
   for(int i=0;i<nr_valid_pages;i++){
     kPtables[i]=(entry_t *)((u32_t)big_frame+PFAllocator::ChunkSize*i);
   }
@@ -70,7 +72,7 @@ void VarMem::copyKernelDir(entry_t *pdir){
   int i_begin=0xe0000000/dir_entrySize;
   //  int i_end  = CEIL(0xe0200000,dir_entrySize)/dir_entrySize;
   int i_end  = 0xe0200000/dir_entrySize;
-  kprintf("%x \n",i_begin);
+  // kprintf("%x \n",i_begin);
   for(int i=i_begin;i<=i_end;i++){
 
     pdir[i]=kPdir[i];
@@ -166,7 +168,9 @@ u32_t *VarMem::vir2phy(u32_t *virAddr,entry_t *pdir){
 
   if(pdir==NULL)
     pdir = (entry_t *)pManager.pCurrent->mm->cr3;
-  kprintf("pdir %x viraddr %x \n",pdir,virAddr);
+  ////////////////////////////////////////////////////
+  // kprintf("pdir %x viraddr %x \n",pdir,virAddr); //
+  ////////////////////////////////////////////////////
   u32_t where = (u32_t)virAddr/0x400000;
   //  entryD = &pdir[(where/0x400000)];
   entryD = &pdir[where];

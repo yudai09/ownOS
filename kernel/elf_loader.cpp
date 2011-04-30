@@ -63,7 +63,7 @@ bool load_elf_executable(File *file){
     kprintf("not x86 executable %x\n",header.e_machine);
     return false;
   }
-  kprintf("ehsize %x phoff %x shoff %x \n ",header.e_ehsize,header.e_phoff,header.e_shoff);
+  //  kprintf("ehsize %x phoff %x shoff %x \n ",header.e_ehsize,header.e_phoff,header.e_shoff);
   u32_t phoff = header.e_phoff;//+sizeof(header);
   u32_t shoff = header.e_shoff;//+sizeof(header);
   Elf32_Phdr *phdr=new Elf32_Phdr[header.e_phnum];
@@ -76,10 +76,12 @@ bool load_elf_executable(File *file){
     switch(phdr->p_type){
     case PT_LOAD:
       {
-        kprintf("pt_load:");
-        kprintf("(type %x offset %x vaddr %x size %x) \n",
-                phdr->p_type,phdr->p_offset,phdr->p_vaddr,phdr->p_memsz);
-        kprintf("enable space (%x,%x) \n",phdr->p_vaddr,phdr->p_vaddr+phdr->p_memsz);
+        ///////////////////////////////////////////////////////////////////////////////////
+        // kprintf("pt_load:");                                                          //
+        // kprintf("(type %x offset %x vaddr %x size %x) \n",                            //
+        //         phdr->p_type,phdr->p_offset,phdr->p_vaddr,phdr->p_memsz);             //
+        // kprintf("enable space (%x,%x) \n",phdr->p_vaddr,phdr->p_vaddr+phdr->p_memsz); //
+        ///////////////////////////////////////////////////////////////////////////////////
         varMem.enableSpace((u32_t *)phdr->p_vaddr,(u32_t)phdr->p_memsz,
                            (entry_t *)pManager.pCurrent->mm->cr3,
                            VarMem::userpage);
@@ -91,8 +93,10 @@ bool load_elf_executable(File *file){
     default:
       {
         kprintf("default:");
-        kprintf("(type %x offset %x vaddr %x size %x) \n",
-                phdr->p_type,phdr->p_offset,phdr->p_vaddr,phdr->p_memsz);
+        ///////////////////////////////////////////////////////////////////////
+        // kprintf("(type %x offset %x vaddr %x size %x) \n",                //
+        //         phdr->p_type,phdr->p_offset,phdr->p_vaddr,phdr->p_memsz); //
+        ///////////////////////////////////////////////////////////////////////
       }
       break;
     }

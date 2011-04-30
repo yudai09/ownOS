@@ -31,7 +31,7 @@ Ext2::ext2_inode Ext2::get_inode_path(kvector<kstring> path){
     atadriver->read(addr_of_dir_info,buffer,0x400);
     cnode = find_inode_from_direntries(buffer,path[i]);
     if(!cnode.is_valid()){
-      kprintf("get_inode_path:invalid node %x \n",cnode.i_mode);
+      //      kprintf("get_inode_path:invalid node %x \n",cnode.i_mode);
       return invalid_inode;//returns invalid inode
     }
   }
@@ -41,8 +41,8 @@ Ext2::ext2_inode Ext2::find_inode_from_direntries(u8_t *buffer,kstring &search_f
   ext2_dir_entry_2 *file=(ext2_dir_entry_2 *)buffer;
     do{
       kstring file_name(file->name,file->name_len);
-      kprintf("inode %x filename %s lec_ren %x filetype %x\n"
-              ,file->inode,file_name.to_char(),file->rec_len,file->file_type);    
+      //      kprintf("inode %x filename %s lec_ren %x filetype %x\n"
+      //        ,file->inode,file_name.to_char(),file->rec_len,file->file_type);    
       if(search_for==file_name){
         return get_inode(file->inode);
       }
@@ -164,24 +164,13 @@ bool Ext2::read_block_pos(u32_t pos,void *dbuffer,ext2_inode inode){
 
 Ext2::Ext2(Ata *ata){
   atadriver = ata;
-
   super_block=new ext2_super_block();
   ata->read(first_blockaddr+0x400,(u8_t *)super_block,sizeof(ext2_super_block));// = (ext2_super_block *)0x8200;
   block_size = super_block->block_size();
   inode_size = super_block->inode_size();
-  
   ext2_group_desc *group_desc0=new ext2_group_desc();
-
   ata->read(first_blockaddr+0x400+0x400,(u8_t *)group_desc0,sizeof(ext2_group_desc));
-
-  // kprintf("block_size() %x \n",super_block->block_size());
-  // kprintf("bg_inode_table %x \n",group_desc0->bg_inode_table);
-
   root_inode = get_inode(2);
-  //current_inode = root_inode;
-  if(root_inode.is_directory()){
-    kprintf("root inode size %x type %x \n",root_inode.i_size,root_inode.i_mode);
-  }
 }
 
 

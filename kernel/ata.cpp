@@ -144,8 +144,6 @@ u32_t	Ata::write(u32_t pos,u8_t* buffer,u32_t sizee){
     blocks = bl_end - bl_begin +1;
   }
 	
-  //kprintf("ata: write at block %d to %d (%d blocks) for %d bytes\n",bl_begin,bl_end,blocks,count);
-
   char*bl_buffer = (char *) kmalloc(blocks * 512);
 	
   ide_read_sectors(ata_drive,blocks,bl_begin,0,(u32_t)bl_buffer);	//on lit
@@ -236,7 +234,6 @@ void Ata::ide_initialize(u32_t BAR0,u32_t BAR1,u32_t BAR2,u32_t BAR3,u32_t BAR4)
       while(1) {
 
         status = ide_read(i, ATA_REG_STATUS);
-        kprintf("test %d %d \n",i,status);	 
         if ((status & ATA_SR_ERR)) {err = 1; break;} 
         if (!(status & ATA_SR_BSY) && (status & ATA_SR_DRQ)) break; 
       }
